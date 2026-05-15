@@ -1,0 +1,138 @@
+{
+  "company": {
+    "id": "string (uuid — assigned on insert)",
+    "name": "string (required)",
+    "one_liner": "string | null",
+    "sector": "string | null",
+    "stage": "Pre-seed | Seed | Series A | Series B | Series C+ | Growth | null",
+    "location": "string | null",
+    "website": "string | null",
+    "tags": ["string"],
+    "first_met_at": "YYYY-MM-DD | null",
+    "key_strengths": ["string"],
+    "key_concerns": ["string"],
+    "deal_momentum": "accelerating | stable | stalling | dead | null",
+    "source": {
+      "types": ["granola | affinity | slack | gmail"],
+      "external_id": "string | null"
+    }
+  },
+
+  "deal_status": {
+    "pipeline_stage": "Tracking | First call | Diligence | IC review | Decision",
+    "last_touch_at": "ISO 8601 datetime",
+    "next_step": "string | null",
+    "owner": "string | null"
+  },
+
+  "contacts": [
+    {
+      "name": "string (required)",
+      "role": "Founder | CEO | CTO | COO | Investor | Operator | Other",
+      "is_primary": "boolean",
+      "email": "string | null",
+      "phone": "string | null",
+      "linkedin": "string | null",
+      "twitter": "string | null",
+      "notes": "string | null"
+    }
+  ],
+
+  "interactions": [
+    {
+      "id": "string",
+      "type": "intro_meeting | deep_dive | demo | reference_call | email | slack_message | memo | ic_review | other",
+      "title": "string",
+      "subtitle": "string | null",
+      "occurred_at": "ISO 8601 datetime",
+      "duration_minutes": "number | null",
+      "channel": "video | in_person | phone | email | slack | other",
+      "sentiment": "positive | neutral | negative",
+      "participants": ["string"],
+      "source": {
+        "type": "granola | affinity | slack | gmail",
+        "url": "string | null",
+        "external_id": "string | null"
+      },
+      "what_happened": {
+        "summary": "string",
+        "takeaways": ["string"],
+        "topics": ["string"],
+        "metrics_mentioned": [
+          {
+            "label": "ARR | MRR | customers | burn | runway | growth_rate | margin | headcount | other",
+            "value": "string",
+            "as_of": "YYYY-MM-DD | null"
+          }
+        ],
+        "quotes": [
+          {
+            "speaker": "string",
+            "text": "string"
+          }
+        ]
+      }
+    }
+  ],
+
+  "team_debate": {
+    "detected": "boolean",
+    "for_arguments": [
+      {
+        "argument": "string",
+        "supporter": "string | null",
+        "evidence": "string | null"
+      }
+    ],
+    "against_arguments": [
+      {
+        "argument": "string",
+        "supporter": "string | null",
+        "evidence": "string | null"
+      }
+    ],
+    "open_questions": ["string"]
+  },
+
+  "decision_record": {
+    "verdict": "tracking | diligence | invested | passed",
+    "decided_at": "ISO 8601 datetime | null",
+    "rationale": "string | null",
+    "conditions": ["string"],
+    "check_size": "string | null",
+    "valuation": "string | null"
+  },
+
+  "company_now": {
+    "domain": "string | null",
+    "fetched_at": "ISO 8601 datetime | null",
+    "headcount": "number | null",
+    "open_roles": "number | null",
+    "funding": {
+      "last_round_stage": "string | null",
+      "last_round_amount_usd": "number | null",
+      "total_raised_usd": "number | null"
+    },
+    "latest_news": [
+      {
+        "headline": "string",
+        "url": "string",
+        "published_at": "YYYY-MM-DD",
+        "source": "string"
+      }
+    ],
+    "signals": [
+      {
+        "label": "string",
+        "detected_at": "YYYY-MM-DD"
+      }
+    ]
+  },
+
+  "extraction_meta": {
+    "model": "string",
+    "extracted_at": "ISO 8601 datetime",
+    "confidence": "number (0..1)",
+    "warnings": ["string"]
+  }
+}
