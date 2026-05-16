@@ -61,7 +61,7 @@ class SimilarityComputer:
             )
         embedding = self.watsonx.embed_content(
             text=embedding_text,
-            output_dimensionality=1536,
+            output_dimensionality=768,
             task_type="SEMANTIC_SIMILARITY",
         )
         

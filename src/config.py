@@ -15,10 +15,9 @@ class Settings(BaseSettings):
     # "pro" tier — complex reasoning (extraction)
     watsonx_pro_model: str = "meta-llama/llama-3-3-70b-instruct"
     # "flash" tier — lightweight filtering
-    watsonx_flash_model: str = "ibm/granite-4-0-h-small"
-    # Embedding model. Slate v2 is 768-dim; WatsonXClient zero-pads to the
-    # caller's requested dimensionality (e.g. 1536 for the pgvector column).
-    watsonx_embedding_model: str = "ibm/slate-125m-english-rtrvr-v2"
+    watsonx_flash_model: str = "ibm/granite-4-h-small"
+    # Embedding model. Granite multilingual outputs 768 dims, matching the pgvector column.
+    watsonx_embedding_model: str = "ibm/granite-embedding-278m-multilingual"
     watsonx_temperature: float = 0.1
     watsonx_max_tokens: int = 4096
 
@@ -60,6 +59,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"
 
 
 # Global settings instance

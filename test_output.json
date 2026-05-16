@@ -1,0 +1,340 @@
+{
+  "company": {
+    "id": null,
+    "name": "Luminary Health",
+    "one_liner": "AI-powered chronic disease management for type 2 diabetes and hypertension",
+    "sector": "Digital Health",
+    "stage": "Series B",
+    "location": "Berlin, Germany",
+    "website": "https://luminaryhealth.io",
+    "tags": [
+      "B2B",
+      "SaaS",
+      "Healthcare",
+      "AI",
+      "Digital Therapeutics"
+    ],
+    "first_met_at": "2025-07-14",
+    "key_strengths": [
+      "Strong clinical outcomes data",
+      "Exceptional founder domain expertise",
+      "First-mover on German insurer reimbursement"
+    ],
+    "key_concerns": [
+      "AOK deal uncertainty",
+      "Competition in digital therapeutics"
+    ],
+    "deal_momentum": "stable",
+    "source": {
+      "types": [
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "external_id": null
+    }
+  },
+  "deal_status": {
+    "pipeline_stage": "Decision",
+    "last_touch_at": "2025-09-01T14:00:00Z",
+    "next_step": "Schedule first board meeting",
+    "owner": "Raj Patel"
+  },
+  "contacts": [
+    {
+      "name": "Amara Osei",
+      "role": "Founder",
+      "is_primary": true,
+      "email": null,
+      "phone": null,
+      "linkedin": null,
+      "twitter": null,
+      "notes": "Strong clinical network from previous role as Head of Digital at Charit\u00e8 Berlin"
+    },
+    {
+      "name": "Dr. Felix Brauer",
+      "role": "Founder",
+      "is_primary": false,
+      "email": null,
+      "phone": null,
+      "linkedin": null,
+      "twitter": null,
+      "notes": "Practicing endocrinologist and co-founder"
+    },
+    {
+      "name": "Dr. Klaus Hartmann",
+      "role": "Other",
+      "is_primary": false,
+      "email": null,
+      "phone": null,
+      "linkedin": null,
+      "twitter": null,
+      "notes": "Head of Endocrinology at Uniklinik Freiburg, provided positive reference"
+    }
+  ],
+  "interactions": [
+    {
+      "id": "not_luminary_001",
+      "type": "intro_meeting",
+      "title": "Luminary Health - Series B Intro",
+      "subtitle": "45 min \u00b7 video call",
+      "occurred_at": "2025-07-14T11:00:00Z",
+      "duration_minutes": 45,
+      "channel": "video",
+      "sentiment": "positive",
+      "participants": [
+        "Raj Patel",
+        "Amara Osei",
+        "Dr. Felix Brauer"
+      ],
+      "source": {
+        "type": "granola",
+        "url": null,
+        "external_id": "not_luminary_001"
+      },
+      "what_happened": {
+        "summary": "Introduction to Luminary Health's AI-powered chronic disease management platform, discussion of outcomes data and study methodology.",
+        "takeaways": [
+          "Luminary Health has strong clinical outcomes data, with a 34% reduction in HbA1c levels vs control group.",
+          "The company has a first-mover advantage on German insurer reimbursement."
+        ],
+        "topics": [
+          "traction",
+          "team",
+          "competitive moat"
+        ],
+        "metrics_mentioned": [
+          {
+            "label": "MRR",
+            "value": "\u20ac420K",
+            "as_of": "2025-07-14"
+          },
+          {
+            "label": "growth_rate",
+            "value": "22% MoM",
+            "as_of": "2025-07-14"
+          }
+        ],
+        "quotes": [
+          {
+            "speaker": "Amara Osei",
+            "text": "The mechanism is primarily the behavioral loop - our AI detects glycemic risk patterns 72 hours in advance and intervenes proactively."
+          }
+        ]
+      }
+    },
+    {
+      "id": "slack_luminary_001",
+      "type": "slack_message",
+      "title": "Luminary Health Call",
+      "subtitle": "Slack \u00b7 deal-flow channel",
+      "occurred_at": "2025-07-14T17:00:00Z",
+      "duration_minutes": null,
+      "channel": "slack",
+      "sentiment": "positive",
+      "participants": [
+        "Raj Patel"
+      ],
+      "source": {
+        "type": "slack",
+        "url": null,
+        "external_id": "slack_luminary_001"
+      },
+      "what_happened": {
+        "summary": "Raj Patel shared his positive impression of the Luminary Health call, highlighting the founders' clinical credibility and commercial execution.",
+        "takeaways": [
+          "Raj Patel recommends fast-tracking due diligence for Luminary Health."
+        ],
+        "topics": [
+          "deal momentum"
+        ],
+        "metrics_mentioned": [],
+        "quotes": []
+      }
+    },
+    {
+      "id": "msg_luminary_001",
+      "type": "email",
+      "title": "Luminary Health - Due Diligence Package",
+      "subtitle": "Email \u00b7 raj@projecta.com",
+      "occurred_at": "2025-07-18T08:30:00Z",
+      "duration_minutes": null,
+      "channel": "email",
+      "sentiment": "neutral",
+      "participants": [
+        "Amara Osei",
+        "Raj Patel"
+      ],
+      "source": {
+        "type": "gmail",
+        "url": null,
+        "external_id": "msg_luminary_001"
+      },
+      "what_happened": {
+        "summary": "Amara Osei shared the due diligence package for Luminary Health, including audited financials and clinical trial data.",
+        "takeaways": [
+          "Luminary Health is expecting to sign the AOK contract within 3 weeks, which would add approximately \u20ac95K MRR."
+        ],
+        "topics": [
+          "due diligence"
+        ],
+        "metrics_mentioned": [
+          {
+            "label": "MRR",
+            "value": "\u20ac95K",
+            "as_of": "2025-07-18"
+          }
+        ],
+        "quotes": []
+      }
+    },
+    {
+      "id": "not_luminary_002",
+      "type": "reference_call",
+      "title": "Luminary Health - Customer Reference Call - Dr. Hartmann",
+      "subtitle": "30 min \u00b7 video call",
+      "occurred_at": "2025-07-25T09:00:00Z",
+      "duration_minutes": 30,
+      "channel": "video",
+      "sentiment": "positive",
+      "participants": [
+        "Raj Patel",
+        "Dr. Klaus Hartmann"
+      ],
+      "source": {
+        "type": "granola",
+        "url": null,
+        "external_id": "not_luminary_002"
+      },
+      "what_happened": {
+        "summary": "Dr. Klaus Hartmann provided a positive reference for Luminary Health, highlighting the company's strong clinical outcomes and patient compliance.",
+        "takeaways": [
+          "Luminary Health has a strong reputation among hospital customers, with Dr. Hartmann actively referring them to colleagues."
+        ],
+        "topics": [
+          "customer reference"
+        ],
+        "metrics_mentioned": [
+          {
+            "label": "other",
+            "value": "78%",
+            "as_of": "2025-07-25"
+          }
+        ],
+        "quotes": [
+          {
+            "speaker": "Dr. Klaus Hartmann",
+            "text": "Best digital therapeutic implementation I've seen in 15 years of practice."
+          }
+        ]
+      }
+    },
+    {
+      "id": "slack_luminary_002",
+      "type": "slack_message",
+      "title": "Luminary Health IC Memo",
+      "subtitle": "Slack \u00b7 investments channel",
+      "occurred_at": "2025-08-05T10:00:00Z",
+      "duration_minutes": null,
+      "channel": "slack",
+      "sentiment": "positive",
+      "participants": [
+        "Raj Patel"
+      ],
+      "source": {
+        "type": "slack",
+        "url": null,
+        "external_id": "slack_luminary_002"
+      },
+      "what_happened": {
+        "summary": "Raj Patel submitted the IC memo for Luminary Health, proposing a \u20ac12M investment at an \u20ac85M pre-money valuation.",
+        "takeaways": [
+          "The investment thesis is based on Luminary Health's strong clinical outcomes and first-mover advantage on German insurer reimbursement."
+        ],
+        "topics": [
+          "investment proposal"
+        ],
+        "metrics_mentioned": [
+          {
+            "label": "other",
+            "value": "\u20ac85M",
+            "as_of": "2025-08-05"
+          }
+        ],
+        "quotes": []
+      }
+    },
+    {
+      "id": "msg_luminary_002",
+      "type": "email",
+      "title": "Series B Closed - Thank You",
+      "subtitle": "Email \u00b7 raj@projecta.com",
+      "occurred_at": "2025-09-01T14:00:00Z",
+      "duration_minutes": null,
+      "channel": "email",
+      "sentiment": "positive",
+      "participants": [
+        "Amara Osei",
+        "Raj Patel"
+      ],
+      "source": {
+        "type": "gmail",
+        "url": null,
+        "external_id": "msg_luminary_002"
+      },
+      "what_happened": {
+        "summary": "Amara Osei announced the closing of Luminary Health's Series B round, with \u20ac20M raised and a \u20ac95K MRR from the AOK contract.",
+        "takeaways": [
+          "The investment will be used to accelerate expansion into the UK and Netherlands markets."
+        ],
+        "topics": [
+          "funding announcement"
+        ],
+        "metrics_mentioned": [
+          {
+            "label": "MRR",
+            "value": "\u20ac95K",
+            "as_of": "2025-09-01"
+          }
+        ],
+        "quotes": []
+      }
+    }
+  ],
+  "team_debate": {
+    "detected": false,
+    "for_arguments": [],
+    "against_arguments": [],
+    "open_questions": []
+  },
+  "decision_record": {
+    "verdict": "invested",
+    "decided_at": "2025-08-05T10:00:00Z",
+    "rationale": "Strong clinical outcomes and first-mover advantage on German insurer reimbursement.",
+    "conditions": [],
+    "check_size": "\u20ac12M",
+    "valuation": "\u20ac85M"
+  },
+  "company_now": {
+    "domain": null,
+    "fetched_at": null,
+    "headcount": null,
+    "open_roles": null,
+    "funding": {
+      "last_round_stage": null,
+      "last_round_amount_usd": null,
+      "total_raised_usd": null
+    },
+    "latest_news": [],
+    "signals": []
+  },
+  "extraction_meta": {
+    "model": "meta-llama/llama-3-3-70b-instruct",
+    "extracted_at": "2026-05-16T10:49:13.352888Z",
+    "confidence": 0.9,
+    "warnings": [
+      "Interaction not_luminary_002 metric label 'patient compliance' is not in the allowed enum \u2014 coerced to 'other'",
+      "Interaction slack_luminary_002 metric label 'valuation' is not in the allowed enum \u2014 coerced to 'other'"
+    ]
+  }
+}

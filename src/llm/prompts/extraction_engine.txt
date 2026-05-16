@@ -21,7 +21,7 @@ EXTRACTION INSTRUCTIONS:
 **company block:**
 - `id`: set to null — assigned by the database on insert
 - `name`: exact company name from the data
-- `one_liner`: write a single crisp sentence (max 15 words) describing what the company does, written as if for a VC dashboard card. Example: "AI-powered route optimization for European commercial vehicle fleets."
+- `one_liner`: write a single crisp sentence (between 8 and 15 words) describing what the company does, written as if for a VC dashboard card. Must convey both the product AND the target customer or value prop — not just a category label. Bad: "GPU orchestration layer." Good: "AI-powered route optimization for European commercial vehicle fleets."
 - `sector`: infer from context — be specific (e.g. "AI Infrastructure" not just "AI")
 - `stage`: use only these values: Pre-seed | Seed | Series A | Series B | Series C+ | Growth | null
 - `location`: extract as "City, Country" from any mention in interactions. If multiple locations mentioned, use company HQ.
@@ -32,16 +32,19 @@ EXTRACTION INSTRUCTIONS:
 - `key_concerns`: extract 2-5 distinct concerns or risks raised across interactions. Each as a short phrase, e.g. "Crowded competitive landscape" or "Solo founder risk"
 - `deal_momentum`: assess the trajectory of the deal based on interaction cadence and sentiment:
   - "accelerating" — increasing engagement, positive signals, moving toward decision
-  - "stable" — consistent engagement, no major change
+  - "stable" — consistent engagement, no major change. Also use this once a deal has closed (invested) — momentum no longer applies to a portfolio company.
   - "stalling" — decreasing engagement or unresolved blockers
-  - "dead" — explicitly passed or no contact in 90+ days
-- `source.types`: list all data sources present in the interactions (granola, affinity, slack, gmail)
-- `source.external_id`: use the Affinity organization id if present. Look in each interaction's `metadata.organization_id` (only present for `source: affinity` interactions). Pick the first non-null value across interactions.
+  - "dead" — explicitly passed, or no contact in 90+ days
+  - If `decision_record.verdict` is "invested" or "passed", momentum MUST be "stable" or "dead" respectively — never "accelerating".
+- `source`: a nested object — output it exactly like this:
+  `"source": {"types": ["granola", "slack"], "external_id": "7133001"}`
+  - `types`: list every data source present across all interactions (granola, affinity, slack, gmail)
+  - `external_id`: Affinity organization id if present, otherwise null
 
 **deal_status block:**
 - `pipeline_stage`: map the current deal state to exactly one of: Tracking | First call | Diligence | IC review | Decision
-- `last_touch_at`: ISO 8601 datetime of the most recent interaction
-- `next_step`: extract the most recently mentioned next action or follow-up. Write as an actionable sentence. null if none mentioned.
+- `last_touch_at`: ISO 8601 datetime of the **single most recent interaction**. Look at every interaction's `occurred_at` and pick the maximum — do not stop at the most narratively important one.
+- `next_step`: the most recently mentioned next action that is STILL OPEN. If the deal has already closed (verdict invested/passed), this should reflect post-close reality (e.g. "Schedule first board meeting", "Send portfolio onboarding") or be null if no forward action remains. Do not repeat past actions ("Closing the round" after the round has closed is stale).
 - `owner`: the Yellow or Project A team member most frequently involved or explicitly assigned
 
 **contacts block:**
@@ -54,10 +57,12 @@ EXTRACTION INSTRUCTIONS:
 **interactions block:**
 - Create one interaction object per interaction in the raw data
 - `id`: copy the id field from the raw interaction exactly
-- `type`: classify into exactly one of: intro_meeting | deep_dive | demo | reference_call | email | slack_message | memo | ic_review | other
+- `type`: classify into EXACTLY one of these values (no others allowed):
+  intro_meeting | deep_dive | demo | reference_call | email | slack_message | memo | ic_review | other
   - granola source → intro_meeting, deep_dive, demo, or reference_call depending on content
   - gmail source → email
   - slack source → slack_message
+  - anything else (internal meeting, term sheet, etc.) → other
 - `title`: use the title from the raw data if present, otherwise generate a short descriptive title
 - `subtitle`: generate a short context string like "45 min · video call" or "Slack · deal-flow channel"
 - `occurred_at`: use the date field from the raw interaction in ISO 8601 format
@@ -67,15 +72,26 @@ EXTRACTION INSTRUCTIONS:
   - "positive" — enthusiasm, progress, good signals
   - "neutral" — informational, no strong lean
   - "negative" — concerns raised, hesitation, bad signals
-- `participants`: list all named participants from the interaction's `participants` field. Distinguish VC team members from external contacts using the email domain — the firm's own domains (e.g. yellowvc.com) are internal, all others are external.
-- `source.type`: granola | affinity | slack | gmail
-- `source.external_id`: use the id field from the raw interaction
+- `participants`: a list of plain strings — the full names of every named participant. Example: `["Clara Hoffmann", "Tomás Reyes", "Priya Nair"]`. Do NOT wrap them in objects.
+- `source`: a nested object — output it exactly like this:
+  `"source": {"type": "granola", "url": null, "external_id": "not_neuraledge_001"}`
+  - `type`: granola | affinity | slack | gmail (copy from the raw interaction's source field)
+  - `external_id`: copy the id field from the raw interaction
+  - `url`: null unless explicitly present in the raw data
 
 - `what_happened.summary`: write a 2-4 sentence narrative of what happened in this interaction, written from the VC's perspective. Factual and precise.
 - `what_happened.takeaways`: extract 3-6 bullet points, each one sentence. Most important insights from this interaction.
 - `what_happened.topics`: list the main topics discussed as short tags. Examples: ["traction", "team", "competitive moat", "valuation", "technical architecture"]
-- `what_happened.metrics_mentioned`: extract every specific number mentioned — MRR, ARR, customers, growth rate, burn, runway, headcount, etc. Use the raw value as stated ("€185K", "18%", "23 customers"). Set as_of to the interaction date if not specified.
-- `what_happened.quotes`: extract 1-3 memorable direct quotes from the transcript if available. Prefer founder quotes that reveal insight, conviction, or risk. Each quote must be word-for-word from the transcript.
+- `what_happened.metrics_mentioned`: extract every **company performance metric** mentioned. Each must be an object like:
+  `{"label": "MRR", "value": "€185K", "as_of": "2025-09-03"}`
+  - `label` must be exactly one of: ARR | MRR | customers | burn | runway | growth_rate | margin | headcount | other
+  - `value`: the raw value as stated in the text ("€185K", "18%", "23 customers")
+  - `as_of`: YYYY-MM-DD date, use the interaction date if not specified
+  - **Do NOT** include deal terms here (valuation, check size, round size, ownership %). Those belong in `decision_record.valuation` and `decision_record.check_size`.
+- `what_happened.quotes`: extract 1-3 memorable direct quotes from the transcript if available. Each must be an object like:
+  `{"speaker": "Tomás Reyes", "text": "We save our median customer 38% on their cloud bill from day one."}`
+  - `speaker`: the name of the person who said it
+  - `text`: word-for-word from the transcript, never paraphrased
 
 **team_debate block:**
 - `detected`: true if any interaction shows disagreement, differing views, or competing arguments between VC team members about this deal
@@ -93,7 +109,8 @@ EXTRACTION INSTRUCTIONS:
 - `valuation`: the pre-money valuation if mentioned. Format as string. null if not mentioned.
 
 **company_now block:**
-- Set ALL fields to null and fetched_at to null
+- Output it exactly like this — empty object/arrays, NOT null:
+  `"company_now": {"domain": null, "fetched_at": null, "headcount": null, "open_roles": null, "funding": {}, "latest_news": [], "signals": []}`
 - This block is populated by Component 5 (Query Engine) at runtime via web search
 - Do NOT invent or infer any current company data
 
@@ -105,11 +122,12 @@ EXTRACTION INSTRUCTIONS:
   - 0.7-0.9: good data with minor gaps
   - 0.5-0.7: limited data or ambiguous signals
   - below 0.5: very thin data, many fields null
-- `warnings`: list any issues encountered during extraction. Examples:
+- `warnings`: list any issues encountered during extraction. You MUST add a warning whenever you had to force-fit a value into one of the allowed enums (e.g. you saw "term_sheet_negotiation" but had to map it to "other"). Examples:
   - "No transcript available for granola interactions — summary only"
   - "Conflicting MRR figures across interactions"
   - "Location not explicitly mentioned — inferred from founder email domain"
   - "Decision not yet made — verdict set to diligence based on current status"
+  - "Interaction not_neuraledge_003 was a term sheet negotiation — mapped to 'other' since no enum value fits"
 
 ---
 

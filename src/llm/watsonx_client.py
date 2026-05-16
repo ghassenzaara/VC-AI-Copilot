@@ -422,16 +422,15 @@ class WatsonXClient:
     def embed_content(
         self,
         text: str,
-        output_dimensionality: int = 1536,
+        output_dimensionality: int = 768,
         task_type: str = "SEMANTIC_SIMILARITY",
     ) -> List[float]:
-        """Generate an embedding via IBM Slate.
+        """Generate an embedding via IBM Granite multilingual.
 
-        IBM embedding models produce a fixed-size vector per model
-        (slate-125m-rtrvr-v2 → 768 dims). Downstream pgvector columns expect
-        a specific dimensionality (1536 in this project), so the vector is
-        zero-padded or truncated to `output_dimensionality`. Zero-padding
-        preserves cosine similarity exactly.
+        `granite-embedding-278m-multilingual` natively outputs 768 dims, which
+        matches the pgvector column size. `output_dimensionality` is kept as a
+        parameter so callers can override it; the vector is zero-padded or
+        truncated only when the requested size differs from the model output.
 
         Args:
             text: Text to embed.

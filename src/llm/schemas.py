@@ -8,7 +8,7 @@ These models match extraction_output_format.json exactly and are used to:
 
 import re
 from typing import List, Optional, Literal, Any
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 # Format validators (BUG-031). Permissive: empty / None pass through.
@@ -29,6 +29,9 @@ def _validate_date(v: Optional[str]) -> Optional[str]:
 def _validate_datetime(v: Optional[str]) -> Optional[str]:
     if v is None or v == "":
         return None
+    # Lenient: accept date-only ("2025-09-22") and promote to datetime.
+    if _ISO_DATE_RE.match(v):
+        return f"{v}T00:00:00Z"
     if not _ISO_DATETIME_RE.match(v):
         raise ValueError(f"Expected ISO 8601 datetime, got '{v}'")
     return v
@@ -60,12 +63,22 @@ class Company(BaseModel):
     deal_momentum: Optional[Literal["accelerating", "stable", "stalling", "dead"]] = Field(
         None, description="Trajectory based on interaction cadence and sentiment"
     )
-    source: CompanySource
+    source: Optional[CompanySource] = None
 
     @field_validator("first_met_at")
     @classmethod
     def _validate_first_met(cls, v: Optional[str]) -> Optional[str]:
         return _validate_date(v)
+
+    @field_validator("stage", mode="before")
+    @classmethod
+    def _coerce_stage(cls, v: Any) -> Any:
+        return v if v in {"Pre-seed", "Seed", "Series A", "Series B", "Series C+", "Growth"} else None
+
+    @field_validator("deal_momentum", mode="before")
+    @classmethod
+    def _coerce_momentum(cls, v: Any) -> Any:
+        return v if v in {"accelerating", "stable", "stalling", "dead"} else None
 
 
 # ============================================
@@ -78,6 +91,11 @@ class DealStatus(BaseModel):
     last_touch_at: str  # ISO 8601 datetime
     next_step: Optional[str] = None
     owner: Optional[str] = None
+
+    @field_validator("pipeline_stage", mode="before")
+    @classmethod
+    def _coerce_stage(cls, v: Any) -> Any:
+        return v if v in {"Tracking", "First call", "Diligence", "IC review", "Decision"} else "Tracking"
 
     @field_validator("last_touch_at")
     @classmethod
@@ -93,6 +111,9 @@ class DealStatus(BaseModel):
 # CONTACTS BLOCK
 # ============================================
 
+_VALID_ROLES = {"Founder", "CEO", "CTO", "COO", "Investor", "Operator", "Other"}
+
+
 class Contact(BaseModel):
     """External contact (founder, reference, etc.)"""
     name: str
@@ -103,6 +124,11 @@ class Contact(BaseModel):
     linkedin: Optional[str] = None
     twitter: Optional[str] = None
     notes: Optional[str] = None
+
+    @field_validator("role", mode="before")
+    @classmethod
+    def _coerce_role(cls, v: Any) -> Any:
+        return v if v in _VALID_ROLES else "Other"
 
 
 # ============================================
@@ -116,11 +142,19 @@ class InteractionSource(BaseModel):
     external_id: Optional[str] = None
 
 
+_VALID_METRIC_LABELS = {"ARR", "MRR", "customers", "burn", "runway", "growth_rate", "margin", "headcount", "other"}
+
+
 class MetricMention(BaseModel):
     """Metric mentioned in interaction"""
     label: Literal["ARR", "MRR", "customers", "burn", "runway", "growth_rate", "margin", "headcount", "other"]
     value: str
     as_of: Optional[str] = None  # YYYY-MM-DD
+
+    @field_validator("label", mode="before")
+    @classmethod
+    def _coerce_label(cls, v: Any) -> Any:
+        return v if v in _VALID_METRIC_LABELS else "other"
 
     @field_validator("as_of")
     @classmethod
@@ -134,6 +168,14 @@ class Quote(BaseModel):
     text: str
 
 
+_METRIC_LABEL_MAP = {
+    "mrr": "MRR", "arr": "ARR", "customer": "customers", "burn": "burn",
+    "runway": "runway", "growth": "growth_rate", "mom": "growth_rate",
+    "yoy": "growth_rate", "margin": "margin", "headcount": "headcount",
+    "employee": "headcount", "team size": "headcount",
+}
+
+
 class WhatHappened(BaseModel):
     """Detailed interaction content"""
     summary: str
@@ -141,6 +183,40 @@ class WhatHappened(BaseModel):
     topics: List[str] = Field(default_factory=list)
     metrics_mentioned: List[MetricMention] = Field(default_factory=list)
     quotes: List[Quote] = Field(default_factory=list)
+
+    @field_validator("metrics_mentioned", mode="before")
+    @classmethod
+    def _coerce_metrics(cls, v: Any) -> Any:
+        if not isinstance(v, list):
+            return v
+        result = []
+        for item in v:
+            if isinstance(item, str):
+                lower = item.lower()
+                label = next(
+                    (lbl for key, lbl in _METRIC_LABEL_MAP.items() if key in lower),
+                    "other",
+                )
+                result.append({"label": label, "value": item, "as_of": None})
+            else:
+                result.append(item)
+        return result
+
+    @field_validator("quotes", mode="before")
+    @classmethod
+    def _coerce_quotes(cls, v: Any) -> Any:
+        if not isinstance(v, list):
+            return v
+        return [
+            {"speaker": "unknown", "text": item} if isinstance(item, str) else item
+            for item in v
+        ]
+
+
+_VALID_INTERACTION_TYPES = {
+    "intro_meeting", "deep_dive", "demo", "reference_call",
+    "email", "slack_message", "memo", "ic_review", "other",
+}
 
 
 class Interaction(BaseModel):
@@ -154,8 +230,39 @@ class Interaction(BaseModel):
     channel: Literal["video", "in_person", "phone", "email", "slack", "other"]
     sentiment: Literal["positive", "neutral", "negative"]
     participants: List[str] = Field(default_factory=list)
-    source: InteractionSource
+    source: Optional[InteractionSource] = None
     what_happened: WhatHappened
+
+    @field_validator("type", mode="before")
+    @classmethod
+    def _coerce_type(cls, v: Any) -> Any:
+        return v if v in _VALID_INTERACTION_TYPES else "other"
+
+    @field_validator("channel", mode="before")
+    @classmethod
+    def _coerce_channel(cls, v: Any) -> Any:
+        return v if v in {"video", "in_person", "phone", "email", "slack", "other"} else "other"
+
+    @field_validator("sentiment", mode="before")
+    @classmethod
+    def _coerce_sentiment(cls, v: Any) -> Any:
+        return v if v in {"positive", "neutral", "negative"} else "neutral"
+
+    @field_validator("participants", mode="before")
+    @classmethod
+    def _coerce_participants(cls, v: Any) -> Any:
+        """Accept either plain strings or objects with a `name` field."""
+        if not isinstance(v, list):
+            return v
+        result = []
+        for item in v:
+            if isinstance(item, str):
+                result.append(item)
+            elif isinstance(item, dict):
+                name = item.get("name") or item.get("display_name") or ""
+                if name:
+                    result.append(name)
+        return result
 
     @field_validator("occurred_at")
     @classmethod
@@ -197,6 +304,11 @@ class DecisionRecord(BaseModel):
     conditions: List[str] = Field(default_factory=list)
     check_size: Optional[str] = None
     valuation: Optional[str] = None
+
+    @field_validator("verdict", mode="before")
+    @classmethod
+    def _coerce_verdict(cls, v: Any) -> Any:
+        return v if v in {"tracking", "diligence", "invested", "passed"} else "tracking"
 
     @field_validator("decided_at")
     @classmethod
@@ -260,6 +372,17 @@ class CompanyNow(BaseModel):
     def _v_fetched_at(cls, v: Optional[str]) -> Optional[str]:
         return _validate_datetime(v)
 
+    @field_validator("funding", mode="before")
+    @classmethod
+    def _coerce_funding(cls, v: Any) -> Any:
+        """Accept null/missing funding and substitute an empty Funding object."""
+        return v if v is not None else {}
+
+    @field_validator("latest_news", "signals", mode="before")
+    @classmethod
+    def _coerce_null_lists(cls, v: Any) -> Any:
+        return v if v is not None else []
+
 
 # ============================================
 # EXTRACTION META BLOCK
@@ -304,6 +427,43 @@ class ExtractionOutput(BaseModel):
     decision_record: DecisionRecord
     company_now: CompanyNow = Field(default_factory=CompanyNow)
     extraction_meta: ExtractionMeta
+
+    @model_validator(mode="after")
+    def _normalize_cross_block(self) -> "ExtractionOutput":
+        """Cross-block normalization that the LLM frequently gets wrong.
+
+        - `deal_status.last_touch_at` must equal the max `occurred_at` across
+          all interactions. The LLM sometimes picks the latest narratively
+          important interaction instead of the chronologically latest one.
+        - `deal_momentum` must align with `decision_record.verdict`: a closed
+          deal cannot still be "accelerating".
+        """
+        if self.interactions:
+            latest = max(i.occurred_at for i in self.interactions)
+            if self.deal_status.last_touch_at != latest:
+                self.extraction_meta.warnings.append(
+                    f"deal_status.last_touch_at corrected from "
+                    f"{self.deal_status.last_touch_at} to {latest} "
+                    f"(max of interaction.occurred_at)"
+                )
+                self.deal_status.last_touch_at = latest
+
+        verdict = self.decision_record.verdict
+        momentum = self.company.deal_momentum
+        if verdict == "invested" and momentum in {"accelerating", "stalling"}:
+            self.extraction_meta.warnings.append(
+                f"deal_momentum corrected from '{momentum}' to 'stable' "
+                f"(deal already invested)"
+            )
+            self.company.deal_momentum = "stable"
+        elif verdict == "passed" and momentum != "dead":
+            self.extraction_meta.warnings.append(
+                f"deal_momentum corrected from '{momentum}' to 'dead' "
+                f"(deal already passed)"
+            )
+            self.company.deal_momentum = "dead"
+
+        return self
 
 
 # Made with Bob

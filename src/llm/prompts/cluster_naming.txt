@@ -1,0 +1,26 @@
+You are analyzing a cluster of similar companies in a VC portfolio.
+g
+**Cluster Metadata:**
+- Common Sectors: {{COMMON_SECTORS}}
+- Common Stages: {{COMMON_STAGES}}
+- Common Tags: {{COMMON_TAGS}}
+
+**Sample Companies:**
+{{SAMPLE_COMPANIES}}
+
+**Task:**
+Generate a concise, descriptive name for this cluster that captures the common theme.
+Also provide a 1-2 sentence description explaining what unites these companies.
+
+**Guidelines:**
+- Name should be 2-5 words, professional, and specific
+- Focus on the business model, technology, or market segment
+- Examples: "Enterprise AI Infrastructure", "B2B SaaS Platforms", "Climate Tech Hardware"
+- Avoid generic terms like "Tech Startups" or "Software Companies"
+
+**Output Format:**
+Return ONLY valid JSON:
+{
+  "name": "Cluster Name Here",
+  "description": "Brief description of what unites these companies."
+}

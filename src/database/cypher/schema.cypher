@@ -53,6 +53,16 @@ FOR (s:Sector) REQUIRE s.name IS UNIQUE;
 CREATE CONSTRAINT tag_name IF NOT EXISTS
 FOR (t:Tag) REQUIRE t.name IS UNIQUE;
 
+// Cluster node (for market map clustering)
+CREATE CONSTRAINT cluster_id IF NOT EXISTS
+FOR (cl:Cluster) REQUIRE cl.id IS UNIQUE;
+
+CREATE INDEX cluster_name IF NOT EXISTS
+FOR (cl:Cluster) ON (cl.name);
+
+CREATE INDEX cluster_number IF NOT EXISTS
+FOR (cl:Cluster) ON (cl.cluster_number);
+
 // ============================================
 // SAMPLE QUERIES (for reference)
 // ============================================
@@ -100,3 +110,17 @@ FOR (t:Tag) REQUIRE t.name IS UNIQUE;
 // WHERE i.occurred_at > datetime() - duration({days: 30})
 // RETURN similar.name, s.name, count(i) as recent_interactions
 // ORDER BY recent_interactions DESC;
+
+// Find all companies in a cluster
+// MATCH (c:Company)-[:BELONGS_TO_CLUSTER]->(cl:Cluster {name: "Enterprise AI Infrastructure"})
+// RETURN c.name, c.sector, c.stage
+// ORDER BY c.name;
+
+// Find cluster for a specific company
+// MATCH (c:Company {name: "Example Corp"})-[:BELONGS_TO_CLUSTER]->(cl:Cluster)
+// RETURN cl.name, cl.description;
+
+// Get cluster statistics
+// MATCH (cl:Cluster)<-[:BELONGS_TO_CLUSTER]-(c:Company)
+// RETURN cl.name, cl.cluster_number, count(c) as company_count
+// ORDER BY company_count DESC;

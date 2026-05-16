@@ -157,7 +157,7 @@ class PostgresClient:
     ) -> str:
         """Upsert company embedding for vector search (BUG-065).
 
-        Requires migration 002 (UNIQUE constraint on company_id).
+        Upserts on the UNIQUE constraint on company_id (defined in schema.sql).
         """
         query = """
             INSERT INTO company_embeddings (company_id, embedding, embedding_text)

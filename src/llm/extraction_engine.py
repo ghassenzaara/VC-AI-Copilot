@@ -114,14 +114,23 @@ class ExtractionEngine:
                     f"Extraction returned unknown top-level keys (silently dropped): {sorted(extras)}"
                 )
 
+            # Audit enum coercions on interactions BEFORE Pydantic mutates them,
+            # so we can record warnings the LLM omitted.
+            coercion_warnings = self._audit_enum_drift(response)
+
             # Validate against schema
             extraction = ExtractionOutput(**response)
-            
+
+            # Attach coercion warnings discovered during the audit pass.
+            for w in coercion_warnings:
+                if w not in extraction.extraction_meta.warnings:
+                    extraction.extraction_meta.warnings.append(w)
+
             self.logger.info(
                 f"Extraction complete for {company_name} "
                 f"(confidence: {extraction.extraction_meta.confidence:.2f})"
             )
-            
+
             # Log warnings if any
             if extraction.extraction_meta.warnings:
                 for warning in extraction.extraction_meta.warnings:
@@ -192,6 +201,46 @@ class ExtractionEngine:
         
         return prompt
     
+    # Enum sets used to detect silent coercions by the Pydantic validators.
+    _VALID_INTERACTION_TYPES = {
+        "intro_meeting", "deep_dive", "demo", "reference_call",
+        "email", "slack_message", "memo", "ic_review", "other",
+    }
+    _VALID_METRIC_LABELS = {
+        "ARR", "MRR", "customers", "burn", "runway",
+        "growth_rate", "margin", "headcount", "other",
+    }
+
+    def _audit_enum_drift(self, response: Dict[str, Any]) -> List[str]:
+        """Compare raw LLM output against allowed enums to surface coercions.
+
+        The schema's `mode='before'` validators silently rewrite invalid enum
+        values (e.g. 'term_sheet_negotiation' -> 'other'). That keeps the
+        pipeline alive but loses the original intent. We log a warning so the
+        warning appears in extraction_meta and downstream consumers can see
+        the LLM said something we couldn't represent.
+        """
+        warnings: List[str] = []
+        for interaction in response.get("interactions", []) or []:
+            if not isinstance(interaction, dict):
+                continue
+            raw_type = interaction.get("type")
+            iid = interaction.get("id", "<no id>")
+            if isinstance(raw_type, str) and raw_type not in self._VALID_INTERACTION_TYPES:
+                warnings.append(
+                    f"Interaction {iid} type '{raw_type}' is not in the allowed enum — "
+                    f"coerced to 'other'"
+                )
+            for m in (interaction.get("what_happened") or {}).get("metrics_mentioned", []) or []:
+                if isinstance(m, dict):
+                    raw_label = m.get("label")
+                    if isinstance(raw_label, str) and raw_label not in self._VALID_METRIC_LABELS:
+                        warnings.append(
+                            f"Interaction {iid} metric label '{raw_label}' is not in the "
+                            f"allowed enum — coerced to 'other'"
+                        )
+        return warnings
+
     def to_dict(self, extraction: 'ExtractionOutput') -> Dict[str, Any]:
         """Convert an existing ExtractionOutput to a dict (no extra API call)."""
         return extraction.model_dump()

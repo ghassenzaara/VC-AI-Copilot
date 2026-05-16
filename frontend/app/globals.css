@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply bg-bg-base text-ink antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  ::selection {
+    background: #0a0a0a;
+    color: #ffffff;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-bg-card border border-line rounded-2xl shadow-card;
+  }
+  .card-subtle {
+    @apply bg-bg-subtle border border-line rounded-2xl;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink text-white px-4 py-2 text-sm font-medium hover:opacity-90 transition;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-white border border-line text-ink px-4 py-2 text-sm font-medium hover:border-ink/20 transition;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full text-ink-muted hover:text-ink hover:bg-line/40 px-3 py-2 text-sm transition;
+  }
+  .input {
+    @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-ink/30 focus:ring-2 focus:ring-ink/5 transition;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .nav-tab {
+    @apply inline-flex items-center px-3.5 py-1.5 text-sm rounded-full text-ink-muted hover:text-ink transition;
+  }
+  .nav-tab-active {
+    @apply bg-bg-card text-ink shadow-card border border-line;
+  }
+}
+
+/* Subtle dotted background for empty / canvas areas */
+.dot-bg {
+  background-image: radial-gradient(#d4d4d0 1px, transparent 1px);
+  background-size: 18px 18px;
+}
