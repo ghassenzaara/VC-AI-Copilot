@@ -11,7 +11,6 @@ import logging
 from typing import Dict, Any, Optional
 
 from src.ingestion.aggregator import DataAggregator
-from src.llm.gemini_client import GeminiClient
 from src.llm.relevance_filter import RelevanceFilter
 from src.llm.extraction_engine import ExtractionEngine
 from src.llm.schemas import ExtractionOutput

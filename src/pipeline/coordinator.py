@@ -16,7 +16,7 @@ from src.ingestion.granola import GranolaConnector
 from src.ingestion.affinity import AffinityConnector
 from src.ingestion.gmail import GmailConnector
 from src.ingestion.slack import SlackConnector
-from src.llm.gemini_client import GeminiClient
+from src.llm.watsonx_client import WatsonXClient
 from src.llm.relevance_filter import RelevanceFilter
 from src.llm.extraction_engine import ExtractionEngine
 from src.storage.orchestrator import StorageOrchestrator
@@ -42,16 +42,20 @@ class PipelineCoordinator:
         affinity_api_key: Optional[str] = None,
         gmail_credentials_path: Optional[str] = None,
         slack_bot_token: Optional[str] = None,
-        gemini_api_key: Optional[str] = None
+        ibm_api_key: Optional[str] = None,
+        ibm_project_id: Optional[str] = None,
+        ibm_url: Optional[str] = None,
     ):
         """Initialize pipeline coordinator
-        
+
         Args:
             granola_api_key: Granola API key (defaults to env var)
             affinity_api_key: Affinity API key (defaults to env var)
             gmail_credentials_path: Gmail OAuth credentials path
             slack_bot_token: Slack bot token (defaults to env var)
-            gemini_api_key: Gemini API key (defaults to env var)
+            ibm_api_key: IBM Cloud API key (defaults to env var)
+            ibm_project_id: WatsonX project ID (defaults to env var)
+            ibm_url: WatsonX endpoint URL (defaults to env var)
         """
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info("Initializing Pipeline Coordinator...")
@@ -86,21 +90,25 @@ class PipelineCoordinator:
         
         # Initialize LLM components
         self.logger.info("Initializing LLM components...")
-        self.flash_client = GeminiClient(
-            api_key=gemini_api_key,
-            model="flash"
+        self.flash_client = WatsonXClient(
+            api_key=ibm_api_key,
+            project_id=ibm_project_id,
+            url=ibm_url,
+            model="flash",
         )
-        self.pro_client = GeminiClient(
-            api_key=gemini_api_key,
-            model="pro"
+        self.pro_client = WatsonXClient(
+            api_key=ibm_api_key,
+            project_id=ibm_project_id,
+            url=ibm_url,
+            model="pro",
         )
-        
+
         self.relevance_filter = RelevanceFilter(
-            gemini_client=self.flash_client
+            watsonx_client=self.flash_client
         )
-        
+
         self.extraction_engine = ExtractionEngine(
-            gemini_client=self.pro_client
+            watsonx_client=self.pro_client
         )
         
         # Initialize database clients
@@ -120,7 +128,7 @@ class PipelineCoordinator:
         self.similarity = SimilarityComputer(
             postgres_client=self.postgres,
             neo4j_client=self.neo4j,
-            gemini_client=self.flash_client,
+            watsonx_client=self.flash_client,
         )
 
         # Initialize company processor

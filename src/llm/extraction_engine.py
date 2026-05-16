@@ -1,7 +1,8 @@
 """Extraction Engine - Extracts structured intelligence from company data
 
-Uses Gemini 2.5 Pro to extract comprehensive deal intelligence from aggregated
-company interactions, producing a structured output matching extraction_output_format.json
+Uses IBM WatsonX (Llama 3.3 70B Instruct) to extract comprehensive deal
+intelligence from aggregated company interactions, producing a structured
+output matching extraction_output_format.json
 """
 
 import json
@@ -12,7 +13,7 @@ from datetime import datetime, timezone
 
 from pydantic import ValidationError
 
-from .gemini_client import GeminiClient, GeminiError
+from .watsonx_client import WatsonXClient, WatsonXError
 from .schemas import ExtractionOutput
 
 
@@ -26,28 +27,28 @@ class BatchExtractionResult(NamedTuple):
 
 
 class ExtractionEngine:
-    """Extracts structured intelligence from company data using Gemini 2.5
-    
+    """Extracts structured intelligence from company data using IBM WatsonX
+
     The extraction engine:
     1. Takes filtered CompanyData with relevant interactions
     2. Builds a comprehensive prompt with all interaction data
-    3. Calls Gemini 2.5 Pro for deep extraction
+    3. Calls WatsonX (Llama 3.3 70B Instruct) for deep extraction
     4. Validates output against ExtractionOutput schema
     5. Returns structured intelligence ready for storage
     """
-    
+
     def __init__(
         self,
-        gemini_client: GeminiClient,
+        watsonx_client: WatsonXClient,
         prompt_path: Optional[str] = None
     ):
         """Initialize extraction engine
-        
+
         Args:
-            gemini_client: Configured GeminiClient instance (should use Pro model)
+            watsonx_client: Configured WatsonXClient instance (should use the "pro" model)
             prompt_path: Path to prompt template (defaults to bundled template)
         """
-        self.client = gemini_client
+        self.client = watsonx_client
         self.logger = logging.getLogger(self.__class__.__name__)
         
         # Load prompt template
@@ -80,7 +81,7 @@ class ExtractionEngine:
             ExtractionOutput with complete structured intelligence
             
         Raises:
-            GeminiError: If extraction fails
+            WatsonXError: If extraction fails
             ValidationError: If output doesn't match schema
         """
         company_name = company_data.get('company_name', 'Unknown')
@@ -94,9 +95,9 @@ class ExtractionEngine:
         try:
             # Build prompt
             prompt = self._build_prompt(company_data)
-            
-            # Call Gemini (use Pro model for complex extraction)
-            self.logger.debug(f"Calling Gemini for extraction (model: {self.client.model_name})")
+
+            # Call WatsonX (Llama 3.3 70B Instruct for complex extraction)
+            self.logger.debug(f"Calling WatsonX for extraction (model: {self.client.model_name})")
             response = self.client.generate_json(
                 prompt=prompt,
                 temperature=0.2,  # Slightly creative for synthesis
@@ -128,8 +129,8 @@ class ExtractionEngine:
             
             return extraction
             
-        except GeminiError as e:
-            self.logger.error(f"Gemini error during extraction: {e}")
+        except WatsonXError as e:
+            self.logger.error(f"WatsonX error during extraction: {e}")
             raise
         except ValidationError as e:
             self.logger.error(f"Extraction output validation failed: {e}")

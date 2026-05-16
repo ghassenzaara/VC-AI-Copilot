@@ -8,12 +8,19 @@ import os
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
     
-    # LLM Configuration
-    gemini_api_key: str
-    gemini_model: str = "gemini-2.5-flash"
-    gemini_pro_model: str = "gemini-2.5-pro"
-    gemini_temperature: float = 0.1
-    gemini_max_tokens: int = 4096
+    # LLM Configuration (IBM WatsonX)
+    ibm_api_key: str
+    ibm_project_id: str
+    ibm_url: str = "https://us-south.ml.cloud.ibm.com"
+    # "pro" tier — complex reasoning (extraction)
+    watsonx_pro_model: str = "meta-llama/llama-3-3-70b-instruct"
+    # "flash" tier — lightweight filtering
+    watsonx_flash_model: str = "ibm/granite-4-0-h-small"
+    # Embedding model. Slate v2 is 768-dim; WatsonXClient zero-pads to the
+    # caller's requested dimensionality (e.g. 1536 for the pgvector column).
+    watsonx_embedding_model: str = "ibm/slate-125m-english-rtrvr-v2"
+    watsonx_temperature: float = 0.1
+    watsonx_max_tokens: int = 4096
 
     # Data Source API Keys
     granola_api_key: Optional[str] = None

@@ -1,0 +1,2487 @@
+{
+  "companies": [
+    {
+      "id": "company_001",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "NeuralEdge",
+        "domain": "neuraledge.ai",
+        "affinity_id": 7133001
+      },
+      "founder": {
+        "first_name": "Tomás",
+        "last_name": "Reyes",
+        "email": "tomas@neuraledge.ai",
+        "affinity_id": 89001
+      },
+      "opportunity": {
+        "affinity_id": 1001,
+        "name": "NeuralEdge - Series A",
+        "status": "Invested"
+      },
+      "field_values": {
+        "sector": "AI Infrastructure",
+        "stage": "Series A",
+        "mrr": 185000,
+        "sentiment": "Very Positive",
+        "owner": "Clara Hoffmann",
+        "follow_up": "2026-06-15"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_neuraledge_001",
+          "title": "NeuralEdge - First Intro Call",
+          "date": "2025-09-03T10:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Tomás Reyes",
+              "email": "tomas@neuraledge.ai",
+              "role": "CEO"
+            },
+            {
+              "name": "Priya Nair",
+              "email": "priya@neuraledge.ai",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "First call with NeuralEdge. Tomás and Priya walked us through their GPU orchestration layer that sits on top of existing cloud providers. They claim 40% cost reduction for ML training workloads. Currently at €185K MRR, growing 18% MoM for the last 6 months. 23 paying customers, mostly mid-size ML teams at European tech companies. Team of 12, based in Amsterdam. Priya previously led infrastructure at Booking.com. Tomás was founding engineer at a YC-backed MLOps startup that was acquired. Clara flagged strong interest, wants to bring Marcus in for a technical deep-dive.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Clara here, thanks for making the time Tomás. Can you start by giving us the 60-second version of what NeuralEdge does?",
+              "start_time": "2025-09-03T10:01:00Z",
+              "end_time": "2025-09-03T10:01:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Sure. We built an orchestration layer that dynamically routes ML training jobs across AWS, GCP, and Azure spot instances. Most companies are massively overpaying for GPU compute because they don't know how to arbitrage across providers in real time. We do that automatically. Our median customer saves 38% on their monthly cloud bill from day one.",
+              "start_time": "2025-09-03T10:01:21Z",
+              "end_time": "2025-09-03T10:02:10Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "That's a compelling value prop. What does the integration look like? How long does it take a customer to go live?",
+              "start_time": "2025-09-03T10:02:11Z",
+              "end_time": "2025-09-03T10:02:30Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Average time to first job running through our system is under 4 hours. We have SDK wrappers for PyTorch, TensorFlow, and JAX. Most customers just swap one import line. The hard part is our routing engine, not the customer integration.",
+              "start_time": "2025-09-03T10:02:31Z",
+              "end_time": "2025-09-03T10:03:15Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Impressive. What's the competitive moat here? AWS and GCP could theoretically build this themselves.",
+              "start_time": "2025-09-03T10:03:16Z",
+              "end_time": "2025-09-03T10:03:35Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "They won't because it would cannibalize their own margins. Our moat is the cross-cloud routing intelligence. We have 14 months of training data on spot instance pricing patterns across 8 regions. That data advantage compounds every month. A new entrant would need 18 months just to replicate our prediction accuracy.",
+              "start_time": "2025-09-03T10:03:36Z",
+              "end_time": "2025-09-03T10:04:30Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_neuraledge_001",
+          "channel": "deal-flow",
+          "date": "2025-09-03T16:30:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Just wrapped the NeuralEdge intro. Honestly one of the best first calls I've had this quarter. Tomás is razor sharp, Priya has serious infra cred from Booking. Numbers are real - I checked their AWS invoices and the savings are exactly what they claim. Flagging for priority follow-up. @Marcus Weber can you do a technical deep-dive next week?",
+          "thread_ts": "1725381000.000100",
+          "reply_count": 3,
+          "reactions": [
+            {
+              "name": "fire",
+              "count": 3
+            },
+            {
+              "name": "eyes",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_neuraledge_002",
+          "channel": "deal-flow",
+          "date": "2025-09-03T16:45:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Yes absolutely. I've been watching this space closely. The cross-cloud arbitrage angle is clever - the cloud providers genuinely won't build this. I'll prep a list of technical questions around their routing algorithm and failure modes. Can we get access to their API docs beforehand?",
+          "thread_ts": "1725381000.000100",
+          "reply_count": 0,
+          "reactions": [
+            {
+              "name": "thumbsup",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_neuraledge_001",
+          "threadId": "thread_neuraledge_001",
+          "date": "2025-09-04T09:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "from": "tomas@neuraledge.ai",
+          "to": "clara@yellowvc.com",
+          "subject": "NeuralEdge - follow-up materials + API access",
+          "body": "Hi Clara, great speaking yesterday. As promised, I'm attaching our technical deck and granting Marcus read access to our API documentation portal. A few things I wanted to add that I forgot to mention on the call: we closed Zalando as a customer last week (they were our largest prospect), which brings our customer count to 24. Also, we're in conversations with two other European VCs but you're our preferred partner given Yellow's portfolio fit. Looking forward to the technical session. Best, Tomás",
+          "snippet": "Hi Clara, great speaking yesterday. As promised..."
+        },
+        {
+          "source": "granola",
+          "id": "not_neuraledge_002",
+          "title": "NeuralEdge - Technical Deep Dive with Marcus",
+          "date": "2025-09-10T14:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Priya Nair",
+              "email": "priya@neuraledge.ai",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "Technical session with Priya. Marcus went deep on the routing algorithm architecture. Key findings: they use a multi-armed bandit approach with Thompson sampling for spot instance selection. Latency overhead is 12ms per job submission which is negligible. Failure recovery is solid - tested 3 failure scenarios live during the call. Main concern flagged: their multi-region failover adds complexity that could become a support burden at scale. Priya acknowledged this and said they're building a dedicated reliability engineering team. Marcus left impressed, recommends proceeding to term sheet discussion.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Priya, I want to understand your failure handling. What happens when a spot instance gets preempted mid-training run?",
+              "start_time": "2025-09-10T14:05:00Z",
+              "end_time": "2025-09-10T14:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Great question. We checkpoint every 5 minutes by default, configurable down to 60 seconds. On preemption, our orchestrator detects the signal within 200ms, saves state to our distributed cache, and relaunches on the next best available instance. End-to-end recovery time is under 90 seconds for 95% of jobs. We've had zero complete job failures due to preemption in the last 8 months.",
+              "start_time": "2025-09-10T14:05:21Z",
+              "end_time": "2025-09-10T14:06:30Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "That's impressive. What about cross-region latency when you move a job from AWS Frankfurt to GCP Belgium?",
+              "start_time": "2025-09-10T14:06:31Z",
+              "end_time": "2025-09-10T14:06:50Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We only cross regions for stateless preprocessing jobs. Training jobs stay within region. The cost arbitrage within a single region is already 25-35%, so we don't need to go cross-region for training. That's a deliberate product decision.",
+              "start_time": "2025-09-10T14:06:51Z",
+              "end_time": "2025-09-10T14:07:40Z"
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_neuraledge_002",
+          "threadId": "thread_neuraledge_002",
+          "date": "2025-09-11T10:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "from": "marcus@yellowvc.com",
+          "to": "clara@yellowvc.com",
+          "subject": "NeuralEdge technical review - strong yes",
+          "body": "Clara, wrote up my notes from yesterday. Architecture is genuinely impressive. Thompson sampling for instance selection is novel - I haven't seen that approach in any competitor. The 90-second recovery guarantee is real, I stress tested it live. One concern: their Kubernetes operator is tightly coupled to their proprietary scheduler which could create lock-in issues for customers running hybrid workloads. Priya knows this and says v2 scheduler (Q1 2026) decouples it. Overall: strong yes from me. Let's move to term sheet. Marcus",
+          "snippet": "Clara, wrote up my notes from yesterday..."
+        },
+        {
+          "source": "slack",
+          "id": "slack_neuraledge_003",
+          "channel": "investments",
+          "date": "2025-09-15T11:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "NeuralEdge IC memo is ready. Sharing with the full team for Thursday's investment committee. Key metrics: €185K MRR, 18% MoM growth, 24 customers, NRR 142%, gross margin 78%. Asking €8M at €40M pre. We're targeting €3M of the round with Project A co-leading. @Raj Patel from Project A is aligned - spoke to him this morning.",
+          "thread_ts": "1726394400.000100",
+          "reply_count": 5,
+          "reactions": [
+            {
+              "name": "rocket",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "source": "granola",
+          "id": "not_neuraledge_003",
+          "title": "NeuralEdge - Term Sheet Negotiation",
+          "date": "2025-09-22T15:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Tomás Reyes",
+              "email": "tomas@neuraledge.ai",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Term sheet negotiation call. Tomás pushed back on the 1x liquidation preference, wanted non-participating. Clara agreed to non-participating 1x. Board seat discussed - Yellow to get observer rights, not full board seat, given round size. Pro-rata rights confirmed for Yellow. Main sticking point was option pool - Tomás wants 12%, Clara pushed for 15% pre-money. Agreed on 13.5%. Investment to close end of October. Tomás confirmed Project A is co-investing €3M, Yellow €3M, remaining €2M from angel syndicate led by ex-Stripe COO.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Tomás, we're aligned on the €40M pre-money. The main thing I want to discuss is the option pool size.",
+              "start_time": "2025-09-22T15:02:00Z",
+              "end_time": "2025-09-22T15:02:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We think 12% is right for where we are. We've already hired most of the senior team. The pool is primarily for the next 18 months of hiring which we've modeled out carefully.",
+              "start_time": "2025-09-22T15:02:21Z",
+              "end_time": "2025-09-22T15:03:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "I hear you, but our standard is 15% pre-money for Series A. It's not about distrust, it's about making sure you have room to hire aggressively if things go well faster than expected.",
+              "start_time": "2025-09-22T15:03:01Z",
+              "end_time": "2025-09-22T15:03:30Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Could we meet in the middle? 13.5% with a top-up right if we close a Series B within 24 months?",
+              "start_time": "2025-09-22T15:03:31Z",
+              "end_time": "2025-09-22T15:04:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "I can work with 13.5%. The top-up right is a bit unusual but I'll take it back to the team.",
+              "start_time": "2025-09-22T15:04:01Z",
+              "end_time": "2025-09-22T15:04:20Z"
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_neuraledge_003",
+          "threadId": "thread_neuraledge_003",
+          "date": "2025-10-28T09:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "from": "tomas@neuraledge.ai",
+          "to": "clara@yellowvc.com",
+          "subject": "Closing confirmed - wires sent",
+          "body": "Clara, all documents signed. Wires from Yellow and Project A confirmed received. Welcome aboard as an investor and observer. First board observer meeting scheduled for December 3rd. We're planning to announce the round publicly on November 5th - embargo until then please. Excited to build something great together. Tomás",
+          "snippet": "Clara, all documents signed. Wires confirmed..."
+        },
+        {
+          "source": "slack",
+          "id": "slack_neuraledge_004",
+          "channel": "portfolio",
+          "date": "2025-11-05T09:30:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "NeuralEdge just announced their Series A publicly. TechCrunch picked it up. Already seeing inbound from 3 enterprise prospects who saw the press. Tomás says December MRR is tracking at €210K - ahead of plan. Great start to the portfolio relationship.",
+          "thread_ts": "1730797800.000100",
+          "reply_count": 4,
+          "reactions": [
+            {
+              "name": "tada",
+              "count": 5
+            },
+            {
+              "name": "rocket",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "source": "granola",
+          "id": "not_neuraledge_noise_001",
+          "title": "Yellow internal - Q4 portfolio review",
+          "date": "2025-11-20T10:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Marcus Weber",
+              "email": "marcus@yellowvc.com",
+              "role": "Partner"
+            }
+          ],
+          "summary_text": "Internal Yellow team meeting to review Q4 portfolio performance. Discussed NeuralEdge growth trajectory, Luminary Health Series B timing, and fund deployment pace. No external founders present. Administrative discussion about LP reporting deadlines.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Let's run through the portfolio updates quickly. NeuralEdge first.",
+              "start_time": "2025-11-20T10:01:00Z",
+              "end_time": "2025-11-20T10:01:10Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "NeuralEdge is tracking well, €210K MRR as of October. On plan.",
+              "start_time": "2025-11-20T10:01:11Z",
+              "end_time": "2025-11-20T10:01:30Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_002",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Luminary Health",
+        "domain": "luminaryhealth.io",
+        "affinity_id": 7133002
+      },
+      "founder": {
+        "first_name": "Amara",
+        "last_name": "Osei",
+        "email": "amara@luminaryhealth.io",
+        "affinity_id": 89002
+      },
+      "opportunity": {
+        "affinity_id": 1002,
+        "name": "Luminary Health - Series B",
+        "status": "Invested"
+      },
+      "field_values": {
+        "sector": "Digital Health",
+        "stage": "Series B",
+        "mrr": 420000,
+        "sentiment": "Very Positive",
+        "owner": "Raj Patel",
+        "follow_up": "2026-07-01"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_luminary_001",
+          "title": "Luminary Health - Series B Intro",
+          "date": "2025-07-14T11:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Amara Osei",
+              "email": "amara@luminaryhealth.io",
+              "role": "CEO"
+            },
+            {
+              "name": "Dr. Felix Brauer",
+              "email": "felix@luminaryhealth.io",
+              "role": "Chief Medical Officer"
+            }
+          ],
+          "summary_text": "Luminary Health is building AI-powered chronic disease management for type 2 diabetes and hypertension. Platform combines continuous glucose monitoring data with behavioral nudges and physician oversight. Currently deployed in 14 hospital systems across DACH region. €420K MRR, growing 22% MoM. 8,200 active patients. Amara has strong clinical network from her previous role as Head of Digital at Charité Berlin. Felix is a practicing endocrinologist who co-founded the company. Their outcomes data is remarkable: 34% reduction in HbA1c levels vs control group across 18-month study. Raj flagged this as a potential Series B lead for Project A.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Amara, the outcomes data in your deck is striking. Can you walk me through the study methodology?",
+              "start_time": "2025-07-14T11:05:00Z",
+              "end_time": "2025-07-14T11:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We ran an 18-month RCT across 3 hospital systems, 412 patients in treatment group, 398 in control. Both groups had standard of care. Treatment group additionally got our app with daily check-ins, meal logging with AI feedback, and monthly teleconsults with our care team. 34% reduction in HbA1c is statistically significant at p less than 0.001. The mechanism is primarily the behavioral loop - our AI detects glycemic risk patterns 72 hours in advance and intervenes proactively.",
+              "start_time": "2025-07-14T11:05:21Z",
+              "end_time": "2025-07-14T11:07:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "That's compelling. What's the reimbursement pathway? Are you getting paid by hospitals or insurers?",
+              "start_time": "2025-07-14T11:07:01Z",
+              "end_time": "2025-07-14T11:07:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Currently 60% hospital SaaS contracts, 40% direct insurer reimbursement. We're the first digital therapeutic to get reimbursement codes from 3 major German private insurers. AOK is in final contract negotiations - that would be transformational for our public insurance access.",
+              "start_time": "2025-07-14T11:07:21Z",
+              "end_time": "2025-07-14T11:08:30Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_luminary_001",
+          "channel": "deal-flow",
+          "date": "2025-07-14T17:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [],
+          "text": "Luminary Health call was exceptional. Amara and Felix are the real deal - deep clinical credibility combined with strong commercial execution. The AOK negotiation is the wildcard - if that closes it changes the growth trajectory dramatically. Recommending we fast-track due diligence. Anyone know the German digital health reimbursement landscape well? Need to validate their coding claims.",
+          "thread_ts": "1752505200.000100",
+          "reply_count": 4,
+          "reactions": [
+            {
+              "name": "star",
+              "count": 3
+            },
+            {
+              "name": "heart",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_luminary_001",
+          "threadId": "thread_luminary_001",
+          "date": "2025-07-18T08:30:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "from": "amara@luminaryhealth.io",
+          "to": "raj@projecta.com",
+          "subject": "Luminary Health - due diligence package",
+          "body": "Hi Raj, as discussed, I'm sharing our full due diligence package including: audited financials for 2024, clinical trial data with full methodology, all insurance reimbursement agreements, cap table, and reference list of 5 clinical directors who can speak to outcomes. One update since our call: AOK has moved to final term negotiations. We expect to sign within 3 weeks. This would add approximately €95K MRR from day one of launch. Happy to arrange calls with any of the references at your convenience. Amara",
+          "snippet": "Hi Raj, as discussed, I'm sharing our full DD package..."
+        },
+        {
+          "source": "granola",
+          "id": "not_luminary_002",
+          "title": "Luminary Health - Customer Reference Call - Dr. Hartmann",
+          "date": "2025-07-25T09:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Dr. Klaus Hartmann",
+              "email": "k.hartmann@uniklinik-freiburg.de",
+              "role": "Head of Endocrinology, Uniklinik Freiburg"
+            }
+          ],
+          "summary_text": "Reference call with Dr. Hartmann at Uniklinik Freiburg, one of Luminary's largest hospital customers. Highly positive reference. Key quotes: 'Best digital therapeutic implementation I've seen in 15 years of practice.' Patient compliance at 78% after 6 months vs industry average of 23%. Main feedback: onboarding for non-technical physicians took longer than expected (3 weeks vs promised 1 week) - Amara already aware, fixing in next release. No concerns about clinical validity. Dr. Hartmann actively referring them to colleagues at other hospital systems.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Dr. Hartmann, how has the clinical team responded to the platform?",
+              "start_time": "2025-07-25T09:03:00Z",
+              "end_time": "2025-07-25T09:03:15Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Initially skeptical, as you'd expect from physicians about any new technology. But the patient outcomes converted everyone. We had a patient last month who avoided a hospitalization because the system flagged a hypoglycemic trend 3 days in advance. That kind of story travels fast through a hospital. My whole department is now advocating for expanding the contract.",
+              "start_time": "2025-07-25T09:03:16Z",
+              "end_time": "2025-07-25T09:05:00Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_luminary_002",
+          "channel": "investments",
+          "date": "2025-08-05T10:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [],
+          "text": "Luminary IC memo submitted. Proposing Project A leads €12M of their €20M Series B at €85M pre-money. Yellow has been brought in as co-investor for €4M. Thesis: best-in-class outcomes data in digital therapeutics, first-mover on German insurer reimbursement, Amara is exceptional operator. Main risk: AOK deal is signed but not yet live - revenue recognition starts Q1 2026. Recommend approval.",
+          "thread_ts": "1754384400.000100",
+          "reply_count": 6,
+          "reactions": [
+            {
+              "name": "white_check_mark",
+              "count": 5
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_luminary_002",
+          "threadId": "thread_luminary_002",
+          "date": "2025-09-01T14:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "from": "amara@luminaryhealth.io",
+          "to": "raj@projecta.com",
+          "subject": "Series B closed - thank you",
+          "body": "Raj, the round is officially closed. €20M raised, oversubscribed by €3M. We kept it to the original size to maintain cap table discipline. AOK contract went live September 1st as planned - first month revenue €87K, tracking slightly ahead of our projection. We're planning a press release for September 10th. Can't thank you and the Project A team enough for the confidence and support. This capital will let us accelerate into the UK and Netherlands markets. See you at the board meeting October 3rd. Amara",
+          "snippet": "Raj, the round is officially closed..."
+        },
+        {
+          "source": "granola",
+          "id": "not_luminary_noise_001",
+          "title": "Project A - Weekly team standup",
+          "date": "2025-09-08T09:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Sophie Klein",
+              "email": "sophie@projecta.com",
+              "role": "Associate"
+            }
+          ],
+          "summary_text": "Internal Project A weekly standup. Discussed pipeline updates, admin matters, and upcoming LP meeting. No startup founders present. Raj mentioned Luminary close in passing.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Quick round table - what's everyone working on this week?",
+              "start_time": "2025-09-08T09:01:00Z",
+              "end_time": "2025-09-08T09:01:10Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "I'm finishing the LP quarterly report. Should be done by Thursday.",
+              "start_time": "2025-09-08T09:01:11Z",
+              "end_time": "2025-09-08T09:01:25Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_003",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Carbyne Materials",
+        "domain": "carbyne.io",
+        "affinity_id": 7133003
+      },
+      "founder": {
+        "first_name": "Elena",
+        "last_name": "Vasquez",
+        "email": "elena@carbyne.io",
+        "affinity_id": 89003
+      },
+      "opportunity": {
+        "affinity_id": 1003,
+        "name": "Carbyne Materials - Seed",
+        "status": "Invested"
+      },
+      "field_values": {
+        "sector": "Climate Tech / Advanced Materials",
+        "stage": "Seed",
+        "mrr": 28000,
+        "sentiment": "Positive",
+        "owner": "Marcus Weber",
+        "follow_up": "2026-05-20"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_carbyne_001",
+          "title": "Carbyne Materials - Seed Intro",
+          "date": "2025-10-07T13:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Elena Vasquez",
+              "email": "elena@carbyne.io",
+              "role": "CEO"
+            },
+            {
+              "name": "Dr. Yuki Tanaka",
+              "email": "yuki@carbyne.io",
+              "role": "Chief Scientist"
+            }
+          ],
+          "summary_text": "Carbyne is developing next-generation battery anode materials using carbyne chains - a linear carbon allotrope with theoretical energy density 3x lithium graphite. Elena has a materials science PhD from ETH Zurich, Yuki is a carbon nanomaterials expert formerly at Max Planck. Currently at €28K MRR from 3 battery manufacturer R&D contracts. Based in Zurich. The science is early but the team is exceptional. Marcus flagged strong interest but noted the long commercialization timeline as key risk. They're raising €2.5M seed to hit proof-of-concept milestones for a Series A in 18 months.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Elena, help me understand where you are on the TRL scale and what this seed round gets you to.",
+              "start_time": "2025-10-07T13:05:00Z",
+              "end_time": "2025-10-07T13:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We're at TRL 4 - lab-validated. The seed gets us to TRL 6 - pilot manufacturing with a battery partner. Our three milestones are: first, demonstrate 400 Wh/kg energy density in a pouch cell by month 9. Second, 500 charge cycles with less than 5% degradation by month 14. Third, sign a strategic partnership with one of the top 5 battery manufacturers by month 18. If we hit those, a Series A is straightforward.",
+              "start_time": "2025-10-07T13:05:21Z",
+              "end_time": "2025-10-07T13:07:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "The energy density claim is bold. What's your confidence level on the 400 Wh/kg target?",
+              "start_time": "2025-10-07T13:07:01Z",
+              "end_time": "2025-10-07T13:07:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We've already hit 380 Wh/kg in our lab at gram scale. Scaling to pouch cell is the engineering challenge, not the chemistry. Yuki has done this specific scaling process twice before at Max Planck. Our confidence is high. The bigger uncertainty is cycle life - we need more data on long-term degradation behavior.",
+              "start_time": "2025-10-07T13:07:21Z",
+              "end_time": "2025-10-07T13:08:30Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_carbyne_001",
+          "channel": "deal-flow",
+          "date": "2025-10-07T18:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Carbyne Materials call done. Deep tech with a long road but Elena and Yuki are genuinely world-class. The 380 Wh/kg lab result is real - I've seen the data. Main question is timeline to commercial relevance. Seed at €2.5M, €10M pre feels rich for TRL 4. But the materials breakthrough potential is significant. Thoughts? @Clara Hoffmann you know the battery space better than me.",
+          "thread_ts": "1728324000.000100",
+          "reply_count": 3,
+          "reactions": [
+            {
+              "name": "thinking_face",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_carbyne_002",
+          "channel": "deal-flow",
+          "date": "2025-10-08T09:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Marcus - the valuation is aggressive but not crazy for this team. Yuki's paper on carbyne synthesis was the most cited materials science paper of 2024. If anyone can make this work it's them. The risk is timeline and capital intensity, not science. I'd want to see their capex model for the pilot manufacturing phase before committing. Also - do they have a letter of intent from any of the battery manufacturers yet?",
+          "thread_ts": "1728324000.000100",
+          "reply_count": 2,
+          "reactions": [
+            {
+              "name": "thumbsup",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_carbyne_001",
+          "threadId": "thread_carbyne_001",
+          "date": "2025-10-15T10:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "from": "elena@carbyne.io",
+          "to": "marcus@yellowvc.com",
+          "subject": "Carbyne - LOI from CATL + updated financial model",
+          "body": "Hi Marcus, following up on your questions from our call. Attached is a non-binding LOI from CATL's R&D division for a pilot manufacturing partnership contingent on hitting our TRL 6 milestones. Also attached is our updated capex model showing the path to pilot scale. Total capital need through Series A is €6.5M including this seed. The CATL relationship is important - they've committed to evaluating us for supply chain integration if we hit specs. Their validation would be transformational for future fundraising. Let me know if you'd like to speak with their head of materials R&D directly. Elena",
+          "snippet": "Hi Marcus, following up on your questions..."
+        },
+        {
+          "source": "granola",
+          "id": "not_carbyne_002",
+          "title": "Carbyne - Closing call and next steps",
+          "date": "2025-11-03T14:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Elena Vasquez",
+              "email": "elena@carbyne.io",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Final closing call before seed investment. Yellow investing €800K of the €2.5M seed. Elena confirmed the round is fully committed with 4 investors including Yellow, two climate tech specialists, and one strategic angel from the battery industry. Milestone tracker agreed - quarterly updates to investors with lab data. Marcus expressed continued excitement about the CATL LOI. Wires to transfer end of November. Elena mentioned they're already in conversations with BASF as a potential strategic partner for the materials synthesis supply chain.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Elena, we're ready to proceed with the €800K. I want to make sure we're aligned on the milestone reporting cadence.",
+              "start_time": "2025-11-03T14:02:00Z",
+              "end_time": "2025-11-03T14:02:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Quarterly investor updates with full lab data, synthesis yield rates, and energy density progress. Monthly quick emails for major developments or risks. You'll have full visibility.",
+              "start_time": "2025-11-03T14:02:21Z",
+              "end_time": "2025-11-03T14:03:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Perfect. One thing I want to flag: the BASF conversation is interesting but please don't let strategic conversations distract from the core milestones. We're investors in the science getting to TRL 6, not in business development at this stage.",
+              "start_time": "2025-11-03T14:03:01Z",
+              "end_time": "2025-11-03T14:03:30Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Completely agree. BASF is exploratory only. Yuki and I have a strict rule: no commercial conversations until TRL 6. The BASF contact came to us, not the other way around.",
+              "start_time": "2025-11-03T14:03:31Z",
+              "end_time": "2025-11-03T14:04:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_004",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "QuantumLedger",
+        "domain": "quantumledger.dev",
+        "affinity_id": 7133004
+      },
+      "founder": {
+        "first_name": "Nikolai",
+        "last_name": "Petrov",
+        "email": "nikolai@quantumledger.dev",
+        "affinity_id": 89004
+      },
+      "opportunity": {
+        "affinity_id": 1004,
+        "name": "QuantumLedger - Pre-seed",
+        "status": "In Review"
+      },
+      "field_values": {
+        "sector": "Developer Tools / Security",
+        "stage": "Pre-seed",
+        "mrr": 12000,
+        "sentiment": "Positive",
+        "owner": "Sophie Lindqvist",
+        "follow_up": "2026-05-10"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_quantum_001",
+          "title": "QuantumLedger - Cold outreach intro call",
+          "date": "2026-02-10T10:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Nikolai Petrov",
+              "email": "nikolai@quantumledger.dev",
+              "role": "CEO"
+            },
+            {
+              "name": "Aisha Kamara",
+              "email": "aisha@quantumledger.dev",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "QuantumLedger is building post-quantum cryptography tooling for enterprise software teams. Their SDK lets developers integrate PQC algorithms into existing codebases with minimal friction. The timing is driven by NIST's 2024 PQC standard finalization - enterprises now have regulatory clarity to begin migration. Currently at €12K MRR from 8 paying customers, mostly fintech and defense contractors. Nikolai has a PhD in cryptography from TU Munich, Aisha was a senior security engineer at Cloudflare. Sophie flagged as interesting but wants more customer evidence before proceeding.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Nikolai, why now? PQC has been discussed for a decade. What's changed?",
+              "start_time": "2026-02-10T10:03:00Z",
+              "end_time": "2026-02-10T10:03:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "NIST finalized the first 3 PQC standards in August 2024. That removed the regulatory uncertainty that was blocking enterprise adoption. Simultaneously, the EU's NIS2 directive now requires critical infrastructure to have a PQC migration roadmap by 2026. We're at the intersection of those two catalysts. The market moved from theoretical to urgent in 18 months.",
+              "start_time": "2026-02-10T10:03:21Z",
+              "end_time": "2026-02-10T10:04:30Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "What does your SDK do that a developer couldn't do with the open source NIST reference implementations?",
+              "start_time": "2026-02-10T10:04:31Z",
+              "end_time": "2026-02-10T10:04:50Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "The NIST reference code is research-grade - it'll take a senior cryptographer 3-6 months to properly integrate and harden it for production. Our SDK is production-ready with automated testing, side-channel attack resistance, and compliance reporting built in. A developer with no cryptography background can integrate PQC in a day. We abstract away the hard parts.",
+              "start_time": "2026-02-10T10:04:51Z",
+              "end_time": "2026-02-10T10:06:00Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_quantum_001",
+          "channel": "deal-flow",
+          "date": "2026-02-10T17:30:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "QuantumLedger intro done. Smart founders, real problem, right timing with NIST standards. €12K MRR is modest but they've only been selling for 4 months. My concern is the sales cycle - defense and fintech are slow buyers. Need to understand their pipeline better. Asking for a customer call and pipeline data before next steps.",
+          "thread_ts": "1739203800.000100",
+          "reply_count": 2,
+          "reactions": [
+            {
+              "name": "eyes",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_quantum_001",
+          "threadId": "thread_quantum_001",
+          "date": "2026-02-14T11:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "from": "nikolai@quantumledger.dev",
+          "to": "sophie@yellowvc.com",
+          "subject": "QuantumLedger - pipeline data + customer intro",
+          "body": "Sophie, as requested here is our current pipeline summary: 3 contracts in final negotiation (2 German banks, 1 aerospace company), total ACV €180K if all close. 12 in active evaluation. We're arranging a call with Thomas Bauer, CISO at Deutsche Finanz AG who has been using us for 3 months. He can speak to the integration experience and compliance value. Proposed time: Feb 19th at 10am CET. Also - we received a term sheet from a Berlin angel syndicate yesterday. Not in a rush but wanted to be transparent about the process. Nikolai",
+          "snippet": "Sophie, as requested here is our pipeline..."
+        },
+        {
+          "source": "granola",
+          "id": "not_quantum_002",
+          "title": "QuantumLedger - Customer reference - Thomas Bauer",
+          "date": "2026-02-19T10:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Thomas Bauer",
+              "email": "t.bauer@deutschefinanz.de",
+              "role": "CISO, Deutsche Finanz AG"
+            }
+          ],
+          "summary_text": "Strong customer reference. Thomas has been using QuantumLedger for 3 months to migrate their payment processing infrastructure to PQC. Integration took 6 days vs his team's estimate of 3 months using raw NIST code. Compliance reporting feature saved his team 2 days per month. Main feedback: documentation could be better for non-cryptography engineers. Thomas is planning to expand usage to their entire API security layer. He mentioned he's already referred them to 2 other German banks.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Thomas, how did the integration actually go on the technical side?",
+              "start_time": "2026-02-19T10:03:00Z",
+              "end_time": "2026-02-19T10:03:15Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Surprisingly smooth. My two backend engineers, neither of whom has a cryptography background, had our first endpoint migrated in 6 days. The SDK handles all the algorithm selection, key management, and hybrid mode for backwards compatibility automatically. The biggest time sink was actually our internal compliance review, not the technical integration.",
+              "start_time": "2026-02-19T10:03:16Z",
+              "end_time": "2026-02-19T10:04:30Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_quantum_002",
+          "channel": "deal-flow",
+          "date": "2026-02-19T14:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Thomas Bauer reference was excellent. Genuinely enthusiastic, not a polished reference call. The 6-day integration vs 3-month estimate is the killer stat. Upgrading to high conviction. @Raj Patel - Project A has portfolio companies in fintech who need PQC compliance, could be interesting co-invest angle. Pipeline data looks real - if 2 of 3 bank deals close that's €120K ACV in next 60 days. Moving to term sheet discussion.",
+          "thread_ts": "1739970000.000100",
+          "reply_count": 3,
+          "reactions": [
+            {
+              "name": "green_heart",
+              "count": 3
+            },
+            {
+              "name": "rocket",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "granola",
+          "id": "not_quantum_003",
+          "title": "QuantumLedger - Term sheet discussion",
+          "date": "2026-03-04T11:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Nikolai Petrov",
+              "email": "nikolai@quantumledger.dev",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Term sheet discussion. Yellow proposing €600K of €1.5M pre-seed at €6M pre-money. Nikolai pushed back on valuation - wants €8M pre citing competing term sheet from Berlin angel syndicate. Sophie pushed back noting angels rarely lead pre-seed at those valuations in Europe. Agreed to take 48 hours to consider. Main open items: pro-rata rights, information rights frequency, and valuation. Sophie noted she needs IC approval before final commitment.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Nikolai, help me understand the €8M pre justification. At €12K MRR that's a 55x ARR multiple.",
+              "start_time": "2026-03-04T11:05:00Z",
+              "end_time": "2026-03-04T11:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We're not being valued on current MRR, we're being valued on the pipeline and the market timing. The 3 bank contracts in final negotiation total €180K ACV. Close rate on final-stage enterprise deals in security is typically 70-80%. We're also the only European-founded PQC tooling company - there's a geographic advantage with European regulatory buyers.",
+              "start_time": "2026-03-04T11:05:21Z",
+              "end_time": "2026-03-04T11:06:30Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "I understand the logic. I can potentially go to €7M pre if we structure €1.5M with a €500K milestone tranche triggered by closing €100K ARR. That gives you the headline valuation with our risk management.",
+              "start_time": "2026-03-04T11:06:31Z",
+              "end_time": "2026-03-04T11:07:00Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "That's an interesting structure. Let me think about it overnight. The milestone tranche concept is new to me but I can see the logic.",
+              "start_time": "2026-03-04T11:07:01Z",
+              "end_time": "2026-03-04T11:07:20Z"
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_quantum_002",
+          "threadId": "thread_quantum_002",
+          "date": "2026-03-06T08:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "from": "nikolai@quantumledger.dev",
+          "to": "sophie@yellowvc.com",
+          "subject": "Re: Term sheet - counter proposal",
+          "body": "Sophie, we've discussed internally. We're prepared to accept €7M pre with the milestone tranche structure if we can agree on two things: first, the milestone is closing €80K ARR (not €100K) given the deals already in final stage. Second, Yellow gets observer rights not a full board seat. This keeps our board manageable at pre-seed. The angel syndicate has agreed to step back if Yellow leads - they prefer institutional lead. Let me know if we can close this week. Nikolai",
+          "snippet": "Sophie, we've discussed internally..."
+        },
+        {
+          "source": "slack",
+          "id": "slack_quantum_003",
+          "channel": "deal-flow",
+          "date": "2026-03-06T11:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Nikolai came back with €7M pre, €80K ARR milestone, observer rights. I think we take it. The €80K milestone is achievable within 60 days based on their pipeline. Observer rights is fine at pre-seed. Taking to IC today. Anyone have concerns I should address in the memo?",
+          "thread_ts": "1741255200.000100",
+          "reply_count": 4,
+          "reactions": [
+            {
+              "name": "thumbsup",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "source": "granola",
+          "id": "not_quantum_noise_001",
+          "title": "Yellow - crypto market update lunch",
+          "date": "2026-02-25T12:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Hans Meyer",
+              "email": "hans@cryptofund.de",
+              "role": "Partner, CryptoFund Berlin"
+            }
+          ],
+          "summary_text": "Informal lunch with Hans Meyer from CryptoFund Berlin to discuss the post-quantum crypto market broadly. No specific investment discussion. Sophie gathering market intelligence about PQC competitive landscape. Hans mentioned 3 other PQC startups in his pipeline but none European-focused.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Hans, what are you seeing in the PQC space from your side?",
+              "start_time": "2026-02-25T12:15:00Z",
+              "end_time": "2026-02-25T12:15:15Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Three companies in my pipeline but all US-based. The European market is surprisingly underserved given how strong the regulatory tailwinds are here.",
+              "start_time": "2026-02-25T12:15:16Z",
+              "end_time": "2026-02-25T12:15:45Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_005",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "FleetMind",
+        "domain": "fleetmind.eu",
+        "affinity_id": 7133005
+      },
+      "founder": {
+        "first_name": "Chiara",
+        "last_name": "Ferrero",
+        "email": "chiara@fleetmind.eu",
+        "affinity_id": 89005
+      },
+      "opportunity": {
+        "affinity_id": 1005,
+        "name": "FleetMind - Seed",
+        "status": "Due Diligence"
+      },
+      "field_values": {
+        "sector": "Logistics / AI",
+        "stage": "Seed",
+        "mrr": 67000,
+        "sentiment": "Positive",
+        "owner": "Raj Patel",
+        "follow_up": "2026-05-15"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_fleetmind_001",
+          "title": "FleetMind - Seed intro call",
+          "date": "2026-01-08T14:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Chiara Ferrero",
+              "email": "chiara@fleetmind.eu",
+              "role": "CEO"
+            },
+            {
+              "name": "Lorenzo Bianchi",
+              "email": "lorenzo@fleetmind.eu",
+              "role": "CPO"
+            }
+          ],
+          "summary_text": "FleetMind is building AI-powered route optimization and predictive maintenance for commercial vehicle fleets. Their platform reduces fuel consumption by 12-18% and reduces unplanned downtime by 34% through predictive maintenance alerts. Currently serving 7 fleet operators across Italy and Germany totaling 2,300 vehicles. €67K MRR. Chiara was previously Head of Operations at DHL Italy, Lorenzo was a product lead at TomTom. The go-to-market through fleet insurance carriers is clever - carriers offer FleetMind as a value-add that reduces their claims. Raj impressed, flagging as high priority.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Chiara, the insurance distribution model is interesting. How does that work economically?",
+              "start_time": "2026-01-08T14:05:00Z",
+              "end_time": "2026-01-08T14:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "The insurers subsidize 40% of our subscription fee for their fleet customers. Why? Because our predictive maintenance reduces accident rates by 18% and unplanned breakdowns by 34% on their insured fleets. That translates directly to lower claims for the insurer. We've signed 3 insurance distribution partnerships that give us access to 40,000 vehicles. We've activated 2,300 so far - the rest is an expansion opportunity with zero new sales cost.",
+              "start_time": "2026-01-08T14:05:21Z",
+              "end_time": "2026-01-08T14:07:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "That's a very clever wedge. What's the ARPU and how does it scale with fleet size?",
+              "start_time": "2026-01-08T14:07:01Z",
+              "end_time": "2026-01-08T14:07:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "€29 per vehicle per month. Volume discounts kick in above 500 vehicles - floor is €22. Our largest customer has 480 vehicles and is about to cross that threshold. We're building a fleet analytics module that we'll upsell at €8 per vehicle - that's in beta now with 3 customers.",
+              "start_time": "2026-01-08T14:07:21Z",
+              "end_time": "2026-01-08T14:08:30Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_fleetmind_001",
+          "channel": "deal-flow",
+          "date": "2026-01-08T19:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [],
+          "text": "FleetMind call was really good. The insurance distribution channel is the most creative GTM I've seen in logistics this year. 40K vehicles in existing insurance partnerships = massive expansion runway at zero CAC. €67K MRR is solid for seed, growing 15% MoM. Chiara has the operational DNA you want in a logistics founder - she actually ran DHL Italy's operations, she's not just theorizing. Flagging as top 3 deal in current pipeline.",
+          "thread_ts": "1736363400.000100",
+          "reply_count": 4,
+          "reactions": [
+            {
+              "name": "fire",
+              "count": 4
+            },
+            {
+              "name": "truck",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_fleetmind_001",
+          "threadId": "thread_fleetmind_001",
+          "date": "2026-01-12T09:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "from": "chiara@fleetmind.eu",
+          "to": "raj@projecta.com",
+          "subject": "FleetMind - data room access",
+          "body": "Hi Raj, great to speak last week. I've set up data room access at the link below. Includes: full financial model, insurance partnership agreements (under NDA), vehicle telematics data architecture docs, and 3 customer case studies with full ROI data. One thing to flag: our largest insurance partner Generali has indicated interest in a strategic investment as part of this seed round. We're still evaluating whether to include strategic capital. Happy to discuss the pros and cons on our next call. Best, Chiara",
+          "snippet": "Hi Raj, great to speak last week..."
+        },
+        {
+          "source": "granola",
+          "id": "not_fleetmind_002",
+          "title": "FleetMind - Data room review call",
+          "date": "2026-01-22T11:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Chiara Ferrero",
+              "email": "chiara@fleetmind.eu",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Follow-up call after Raj reviewed the data room. Numbers check out - financials are clean, insurance contracts are real. Main discussion was around the Generali strategic investment question. Raj expressed concern about strategic investor dynamics at seed stage - could complicate future fundraising or create conflicts if Generali's competitors become customers. Chiara agreed to limit Generali to maximum 10% of the round as a financial investor with no governance rights. Raj also raised a concern about data privacy - the telematics data they collect includes driver behavior data which has GDPR implications.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Chiara, the Generali strategic investment question - I want to be direct. I'm cautious about strategic investors at seed. They often complicate Series A dynamics.",
+              "start_time": "2026-01-22T11:05:00Z",
+              "end_time": "2026-01-22T11:05:25Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "I hear you. Our thinking is Generali as a customer is fine, Generali as an investor creates a complicated dynamic. We'd limit them to a small check with zero governance rights - purely financial. But if it creates concerns for lead investors we can exclude them entirely.",
+              "start_time": "2026-01-22T11:05:26Z",
+              "end_time": "2026-01-22T11:06:10Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Let's say cap it at 10% of the round, fully passive. On a separate note - the driver behavior data. How are you handling GDPR consent for individual driver monitoring?",
+              "start_time": "2026-01-22T11:06:11Z",
+              "end_time": "2026-01-22T11:06:35Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "All data collection is at the vehicle level, not driver level. We don't track individual drivers. Our architecture specifically avoids driver identification - we had a GDPR audit in November and we're fully compliant. I can share the audit report.",
+              "start_time": "2026-01-22T11:06:36Z",
+              "end_time": "2026-01-22T11:07:15Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_fleetmind_002",
+          "channel": "deal-flow",
+          "date": "2026-01-22T17:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [],
+          "text": "FleetMind data room call done. Financials are clean. GDPR concern addressed - they're vehicle-level not driver-level, audit confirmed. Generali strategic concern partially resolved - capped at 10% passive. Moving to IC memo next week. @Sophie Lindqvist - Yellow wants to co-invest? Raising €3.5M seed, Project A taking €1.5M, room for €800K from Yellow.",
+          "thread_ts": "1737547200.000100",
+          "reply_count": 3,
+          "reactions": [
+            {
+              "name": "thumbsup",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_fleetmind_003",
+          "channel": "deal-flow",
+          "date": "2026-01-23T09:30:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Raj - yes Yellow is interested in FleetMind. I had a brief call with Chiara last month at a logistics conference, she was impressive. Send me the IC memo when ready and I'll run it through our process. €800K co-invest is workable.",
+          "thread_ts": "1737547200.000100",
+          "reply_count": 1,
+          "reactions": [
+            {
+              "name": "thumbsup",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_fleetmind_002",
+          "threadId": "thread_fleetmind_002",
+          "date": "2026-02-03T10:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "from": "chiara@fleetmind.eu",
+          "to": "raj@projecta.com",
+          "subject": "FleetMind - January metrics + new insurance partnership",
+          "body": "Raj, January update: MRR grew to €74K (+10% MoM), 2,580 active vehicles (+280 vs December). New: we signed a distribution partnership with Allianz Commercial Fleet last week - this adds 22,000 insured vehicles to our addressable base. First activations expected March. Also, our analytics upsell module launched to GA - 2 customers already upgraded. This is tracking to add €4K MRR in Q1. Excited to share more on our next call. Chiara",
+          "snippet": "Raj, January update: MRR grew to €74K..."
+        },
+        {
+          "source": "granola",
+          "id": "not_fleetmind_noise_001",
+          "title": "Logistics industry panel - Future of Fleet Management",
+          "date": "2026-01-15T09:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Various panelists",
+              "email": "panel@logisticsevent.eu",
+              "role": "Industry speakers"
+            }
+          ],
+          "summary_text": "Industry conference panel on fleet management technology. Raj attended to scout potential deals and understand market dynamics. No specific startup pitches. Panel covered EV fleet transition challenges, telematics data regulation, and the role of AI in predictive maintenance. Raj took notes on competitive landscape for FleetMind due diligence.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "What are the biggest barriers to AI adoption in traditional fleet companies?",
+              "start_time": "2026-01-15T09:30:00Z",
+              "end_time": "2026-01-15T09:30:15Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Cultural resistance and data quality. Most fleet operators have terrible data hygiene. The companies succeeding in this space are the ones who take over data collection from day one rather than working with existing data.",
+              "start_time": "2026-01-15T09:30:16Z",
+              "end_time": "2026-01-15T09:31:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_006",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack"
+      ],
+      "organization": {
+        "name": "Verdana AI",
+        "domain": "verdana.ai",
+        "affinity_id": 7133006
+      },
+      "founder": {
+        "first_name": "Mateus",
+        "last_name": "Oliveira",
+        "email": "mateus@verdana.ai",
+        "affinity_id": 89006
+      },
+      "opportunity": {
+        "affinity_id": 1006,
+        "name": "Verdana AI - Pre-seed",
+        "status": "Passed"
+      },
+      "field_values": {
+        "sector": "AgriTech / AI",
+        "stage": "Pre-seed",
+        "mrr": 4000,
+        "sentiment": "Neutral",
+        "owner": "Clara Hoffmann",
+        "follow_up": null
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_verdana_001",
+          "title": "Verdana AI - Intro call",
+          "date": "2025-11-12T10:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Mateus Oliveira",
+              "email": "mateus@verdana.ai",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Verdana AI is building crop disease detection using drone imagery and computer vision. Mateus is solo founder, ex-agronomist. Product is working but traction is very early - €4K MRR from 2 small farm cooperatives in Portugal. Main concern: solo founder with no technical co-founder, and the sales cycle for agricultural technology in Europe is notoriously long. Clara liked the mission but has serious concerns about team completeness and go-to-market speed.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Mateus, who is handling the engineering and ML side of the product?",
+              "start_time": "2025-11-12T10:05:00Z",
+              "end_time": "2025-11-12T10:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "I have two contractors, one in Brazil and one in India. I'm the product owner and I manage them closely. I'm currently recruiting a full-time CTO.",
+              "start_time": "2025-11-12T10:05:21Z",
+              "end_time": "2025-11-12T10:06:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "At what stage would you feel comfortable making an investment? Would you want to see the CTO in place first?",
+              "start_time": "2025-11-12T10:06:01Z",
+              "end_time": "2025-11-12T10:06:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "I have 3 strong CTO candidates. I expect to close this hire in 6-8 weeks.",
+              "start_time": "2025-11-12T10:06:21Z",
+              "end_time": "2025-11-12T10:06:45Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_verdana_001",
+          "channel": "deal-flow",
+          "date": "2025-11-12T16:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Verdana AI - passing for now. Solo founder without technical co-founder is a hard constraint for us at this stage. AgriTech sales cycles are brutal. Mateus is smart and the problem is real but we'd need to see a CTO in place and 3-6 more months of traction before reconsidering. Marking as 'revisit Q2 2026'.",
+          "thread_ts": "1731423600.000100",
+          "reply_count": 1,
+          "reactions": [
+            {
+              "name": "disappointed",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_verdana_001",
+          "threadId": "thread_verdana_001",
+          "date": "2026-01-08T09:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "from": "mateus@verdana.ai",
+          "to": "clara@yellowvc.com",
+          "subject": "Verdana AI update - CTO hired + new customer",
+          "body": "Clara, wanted to give you an update as promised. We hired our CTO last week - Dr. Ana Ferreira, formerly ML lead at Siemens Healthineers (she pivoted to agri from medtech). Also closed our third customer, a 1,200 hectare wine cooperative in Alentejo - MRR now €7K. Still small but moving. Would love to reconnect when the timing is right for you. Mateus",
+          "snippet": "Clara, wanted to give you an update..."
+        }
+      ]
+    },
+    {
+      "id": "company_007",
+      "sources": [
+        "affinity",
+        "granola",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Strato Legal",
+        "domain": "stratolegal.com",
+        "affinity_id": 7133007
+      },
+      "founder": {
+        "first_name": "Isabella",
+        "last_name": "Marchetti",
+        "email": "isabella@stratolegal.com",
+        "affinity_id": 89007
+      },
+      "opportunity": {
+        "affinity_id": 1007,
+        "name": "Strato Legal - Seed",
+        "status": "Watching"
+      },
+      "field_values": {
+        "sector": "LegalTech / AI",
+        "stage": "Seed",
+        "mrr": 31000,
+        "sentiment": "Positive",
+        "owner": "Marcus Weber",
+        "follow_up": "2026-06-01"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_strato_001",
+          "title": "Strato Legal - Inbound intro",
+          "date": "2026-01-20T15:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Isabella Marchetti",
+              "email": "isabella@stratolegal.com",
+              "role": "CEO"
+            },
+            {
+              "name": "Georg Schneider",
+              "email": "georg@stratolegal.com",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "Strato Legal is building AI-powered contract review and negotiation automation for mid-market companies. Their AI reviews contracts, flags risk clauses, suggests negotiation positions, and tracks redline versions. €31K MRR from 18 customers, average contract €1,700/month. Isabella is a corporate lawyer turned founder, Georg has a background in NLP from Heidelberg University. Key differentiator: they're not just doing clause extraction like incumbents - their AI understands negotiation context and recommends specific counter-positions based on industry benchmarks. Currently in talks with a Big 4 consulting firm for a potential enterprise deal worth €120K ACV. Marcus flagged as interesting but competitive space.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Isabella, the contract AI space is crowded. What specifically are you doing that Harvey, Ironclad, or Lexion aren't?",
+              "start_time": "2026-01-20T15:05:00Z",
+              "end_time": "2026-01-20T15:05:25Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "They all do clause identification and risk flagging. We do negotiation intelligence. Our AI tells you not just what's risky in a contract, but specifically what to ask for and why, based on 40,000 negotiated contracts in our training set across 12 industries. When you see an unfavorable IP assignment clause, we don't just flag it - we give you the specific counter-language that succeeds 73% of the time in your industry and deal size bracket.",
+              "start_time": "2026-01-20T15:05:26Z",
+              "end_time": "2026-01-20T15:07:00Z"
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_strato_001",
+          "threadId": "thread_strato_001",
+          "date": "2026-02-15T10:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "from": "isabella@stratolegal.com",
+          "to": "marcus@yellowvc.com",
+          "subject": "Strato Legal - February update",
+          "body": "Marcus, following up as promised. February update: MRR hit €38K (+23% MoM). The Big 4 conversation is progressing - in final security review. We also closed 2 new customers this week from inbound referrals. Our NPS is 71 which we're proud of. Still raising our seed - €2M at €12M pre. Would love to get back on the calendar when you're ready to revisit. Best, Isabella",
+          "snippet": "Marcus, following up as promised..."
+        },
+        {
+          "source": "granola",
+          "id": "not_strato_002",
+          "title": "Strato Legal - Second call post update",
+          "date": "2026-03-05T11:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Isabella Marchetti",
+              "email": "isabella@stratolegal.com",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Second call after strong February metrics. MRR now €38K, growing 20%+ MoM. Big 4 deal still in security review (6 weeks now - longer than expected). Isabella admitted the enterprise sales cycle is slower than projected. Marcus asked about the competitive differentiation sustainability - can incumbents replicate the negotiation intelligence? Isabella's answer: training data moat - their 40K contract dataset took 3 years to curate from law firm partnerships and is not replicable quickly. Marcus flagged as watch list with intent to revisit when Big 4 deal closes.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Isabella, the Big 4 deal has been in security review for 6 weeks. Is that normal or a warning sign?",
+              "start_time": "2026-03-05T11:04:00Z",
+              "end_time": "2026-03-05T11:04:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Enterprise security reviews at Big 4 firms are notoriously slow. Our contact inside says it's tracking positively - the security team flagged 2 questions which we addressed in week 2. We're told to expect sign-off within 3 weeks. I'm cautiously optimistic but I've learned not to call enterprise deals until the ink is dry.",
+              "start_time": "2026-03-05T11:04:21Z",
+              "end_time": "2026-03-05T11:05:15Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_008",
+      "sources": [
+        "affinity",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Refract Bio",
+        "domain": "refractbio.com",
+        "affinity_id": 7133008
+      },
+      "founder": {
+        "first_name": "Dr. Kwame",
+        "last_name": "Asante",
+        "email": "kwame@refractbio.com",
+        "affinity_id": 89008
+      },
+      "opportunity": {
+        "affinity_id": 1008,
+        "name": "Refract Bio - Series A",
+        "status": "Passed"
+      },
+      "field_values": {
+        "sector": "Biotech / Drug Discovery",
+        "stage": "Series A",
+        "mrr": 0,
+        "sentiment": "Negative",
+        "owner": "Clara Hoffmann",
+        "follow_up": null
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_refract_001",
+          "title": "Refract Bio - Series A intro",
+          "date": "2025-12-03T14:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Dr. Kwame Asante",
+              "email": "kwame@refractbio.com",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Refract Bio is using AI to predict protein folding dynamics for drug discovery, specifically targeting neurodegenerative diseases. Pre-revenue, raising €8M Series A. Science is compelling but team is thin outside the scientific founders - no commercial hire yet. Clara's concern: biotech is outside Yellow's core thesis and the capital requirements for clinical validation are enormous. Kwame is brilliant but has never built a commercial organization. Passing due to thesis fit rather than quality.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Kwame, what's the path to first revenue and what does the capital requirement look like to get there?",
+              "start_time": "2025-12-03T14:08:00Z",
+              "end_time": "2025-12-03T14:08:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "First revenue is licensing our target identification platform to pharma companies - we have LOIs from 2 mid-size pharma companies. Timeline to first license is 18 months, contract value €2-4M. But to get to IND-enabling studies on our own pipeline we'd need €40-60M over 5 years.",
+              "start_time": "2025-12-03T14:08:21Z",
+              "end_time": "2025-12-03T14:09:30Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_refract_001",
+          "channel": "deal-flow",
+          "date": "2025-12-03T18:30:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Refract Bio - passing. Great science, wrong fund. Biotech capital requirements are outside our model. Kwame is exceptional but this needs a life science specialist fund. Referring to Sofinnova and Forbion.",
+          "thread_ts": "1733248200.000100",
+          "reply_count": 1,
+          "reactions": [
+            {
+              "name": "thumbsup",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_refract_001",
+          "threadId": "thread_refract_001",
+          "date": "2025-12-05T09:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "from": "clara@yellowvc.com",
+          "to": "kwame@refractbio.com",
+          "subject": "Refract Bio - Yellow decision + referrals",
+          "body": "Kwame, thank you for the time this week. The science is genuinely impressive and your approach to target identification is novel. After internal discussion, we've decided this isn't the right fit for Yellow's current fund thesis - we focus on software and digitally-native business models and biotech requires a different kind of partner and longer time horizons than our fund structure allows. This is a reflection of our fund, not your company. I'm connecting you with Jean-Paul at Sofinnova and Lars at Forbion who are much better positioned for this stage and sector. I'll make warm intros to both today. Best of luck, Clara",
+          "snippet": "Kwame, thank you for the time this week..."
+        }
+      ]
+    },
+    {
+      "id": "company_009",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack"
+      ],
+      "organization": {
+        "name": "Synapse Finance",
+        "domain": "synapsefinance.io",
+        "affinity_id": 7133009
+      },
+      "founder": {
+        "first_name": "Andrei",
+        "last_name": "Popescu",
+        "email": "andrei@synapsefinance.io",
+        "affinity_id": 89009
+      },
+      "opportunity": {
+        "affinity_id": 1009,
+        "name": "Synapse Finance - Seed",
+        "status": "In Review"
+      },
+      "field_values": {
+        "sector": "FinTech / AI",
+        "stage": "Seed",
+        "mrr": 22000,
+        "sentiment": "Positive",
+        "owner": "Sophie Lindqvist",
+        "follow_up": "2026-05-20"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_synapse_001",
+          "title": "Synapse Finance - Intro call",
+          "date": "2026-03-12T10:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Andrei Popescu",
+              "email": "andrei@synapsefinance.io",
+              "role": "CEO"
+            },
+            {
+              "name": "Diana Lungu",
+              "email": "diana@synapsefinance.io",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "Synapse Finance is building AI-powered cash flow forecasting and working capital optimization for SMEs. Their product connects to accounting software (Datev, Xero, QuickBooks) and bank accounts to predict cash flow 90 days out with claimed 94% accuracy. Currently €22K MRR, 31 customers mostly German SMEs in manufacturing and retail. Andrei is ex-CFO of a Romanian fintech, Diana was a data scientist at ING Bank. Product is genuinely useful but the crowded CFO tooling space is a concern. Sophie flagged as interesting, wants to see retention data.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Andrei, the 94% accuracy claim on 90-day forecasts is bold. How are you measuring that?",
+              "start_time": "2026-03-12T10:05:00Z",
+              "end_time": "2026-03-12T10:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We measure it as the percentage of weekly cash positions that fall within a 5% band of our forecast. Over 18 months of production data across all customers, we're at 94.2%. The key is we don't just use historical transaction data - we incorporate invoice payment terms, contractual commitments, and seasonal patterns specific to each customer's industry.",
+              "start_time": "2026-03-12T10:05:21Z",
+              "end_time": "2026-03-12T10:06:30Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_synapse_001",
+          "channel": "deal-flow",
+          "date": "2026-03-12T17:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Synapse Finance call done. Solid product, good founders, real traction. My concern is differentiation - Agicap, Capler, and Float are all doing similar things. Asked for NRR and churn data before next steps. Also want to understand why a CFO would choose Synapse over Agicap which has more brand recognition in DACH.",
+          "thread_ts": "1741784400.000100",
+          "reply_count": 2,
+          "reactions": [
+            {
+              "name": "eyes",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_synapse_001",
+          "threadId": "thread_synapse_001",
+          "date": "2026-03-17T09:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "from": "andrei@synapsefinance.io",
+          "to": "sophie@yellowvc.com",
+          "subject": "Synapse - retention data + competitive positioning",
+          "body": "Sophie, as requested: our NRR is 118%, monthly churn is 1.2%, and we have 0 involuntary churn (all cancellations have been voluntary with documented reasons). On competitive positioning vs Agicap: we're priced 40% lower (€490 vs €820/month for equivalent features) and we have native Datev integration which is critical for German SMEs - Agicap doesn't. 60% of our customers switched from either Agicap or a spreadsheet. Happy to arrange a call with 3 of those switched customers if useful. Andrei",
+          "snippet": "Sophie, as requested: our NRR is 118%..."
+        }
+      ]
+    },
+    {
+      "id": "company_010",
+      "sources": [
+        "affinity",
+        "granola",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Helio Energy",
+        "domain": "helioenergy.eu",
+        "affinity_id": 7133010
+      },
+      "founder": {
+        "first_name": "Fatima",
+        "last_name": "Al-Rashidi",
+        "email": "fatima@helioenergy.eu",
+        "affinity_id": 89010
+      },
+      "opportunity": {
+        "affinity_id": 1010,
+        "name": "Helio Energy - Series A",
+        "status": "In Review"
+      },
+      "field_values": {
+        "sector": "Climate Tech / Energy",
+        "stage": "Series A",
+        "mrr": 145000,
+        "sentiment": "Very Positive",
+        "owner": "Raj Patel",
+        "follow_up": "2026-05-30"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_helio_001",
+          "title": "Helio Energy - Series A intro",
+          "date": "2026-02-25T11:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Fatima Al-Rashidi",
+              "email": "fatima@helioenergy.eu",
+              "role": "CEO"
+            },
+            {
+              "name": "Dr. Stefan Koch",
+              "email": "stefan@helioenergy.eu",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "Helio Energy builds AI-powered energy management systems for commercial and industrial buildings. Their platform predicts energy demand, optimizes HVAC and lighting in real time, and automates energy procurement from the spot market. Average customer saves 23% on energy bills. €145K MRR, 34 enterprise customers including 3 major German retail chains and 2 logistics companies. Fatima was previously VP Operations at E.ON Digital, Stefan has a PhD in energy systems from Karlsruhe. Raj flagged as top priority - strong unit economics, massive market, exceptional team.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Fatima, the 23% energy saving claim - how are you validating that against baseline?",
+              "start_time": "2026-02-25T11:05:00Z",
+              "end_time": "2026-02-25T11:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "We use a 12-month pre-installation baseline adjusted for weather normalization and production volume. We have an independent energy auditor verify the savings for every customer annually. The range is 18-31% depending on how optimized the building was before us. The 23% is the median across our portfolio. We can share the third-party audit reports.",
+              "start_time": "2026-02-25T11:05:21Z",
+              "end_time": "2026-02-25T11:07:00Z"
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_helio_001",
+          "threadId": "thread_helio_001",
+          "date": "2026-03-01T09:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "from": "fatima@helioenergy.eu",
+          "to": "raj@projecta.com",
+          "subject": "Helio Energy - due diligence package",
+          "body": "Raj, sharing our DD package as discussed. Includes audited savings data for all 34 customers, full financial model, customer contracts, and the third-party energy audit reports. One exciting development: we just signed a framework agreement with IKEA Germany for deployment across 12 stores - this will add approximately €40K MRR when fully deployed over the next 6 months. The IKEA procurement process was 9 months but now that we're an approved supplier, subsequent store rollouts are automatic. Fatima",
+          "snippet": "Raj, sharing our DD package as discussed..."
+        },
+        {
+          "source": "granola",
+          "id": "not_helio_002",
+          "title": "Helio Energy - Second deep dive call",
+          "date": "2026-03-18T14:00:00Z",
+          "yellow_participant": "Raj Patel",
+          "firm": "Project A",
+          "external_participants": [
+            {
+              "name": "Fatima Al-Rashidi",
+              "email": "fatima@helioenergy.eu",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Deep dive call covering financials and growth plan. Gross margin is 72%, CAC payback is 8 months, NRR is 134%. Raising €10M Series A at €55M pre-money. Raj's concern: hardware dependency - they install IoT sensors in buildings which creates supply chain risk and slows deployment. Fatima's response: they're moving to software-only mode by integrating with existing BMS systems - 40% of new customers already onboard with no hardware. This eliminates the supply chain risk. Raj moving to IC memo.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Fatima, the hardware dependency worries me. IoT supply chains are fragile and it slows down your deployment velocity.",
+              "start_time": "2026-03-18T14:05:00Z",
+              "end_time": "2026-03-18T14:05:25Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "This was our biggest operational challenge in 2024. We've been investing heavily in software-only integration with Siemens Desigo, Schneider EcoStruxure, and Johnson Controls OpenBlue. 40% of our Q1 customers went live with zero hardware. By year-end we project 70% software-only. The hardware path remains for older buildings without BMS infrastructure.",
+              "start_time": "2026-03-18T14:05:26Z",
+              "end_time": "2026-03-18T14:07:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_011",
+      "sources": [
+        "affinity",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Cognify Education",
+        "domain": "cognify.edu",
+        "affinity_id": 7133011
+      },
+      "founder": {
+        "first_name": "Lena",
+        "last_name": "Kowalski",
+        "email": "lena@cognify.edu",
+        "affinity_id": 89011
+      },
+      "opportunity": {
+        "affinity_id": 1011,
+        "name": "Cognify Education - Pre-seed",
+        "status": "Watching"
+      },
+      "field_values": {
+        "sector": "EdTech / AI",
+        "stage": "Pre-seed",
+        "mrr": 8000,
+        "sentiment": "Neutral",
+        "owner": "Marcus Weber",
+        "follow_up": "2026-07-01"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_cognify_001",
+          "title": "Cognify Education - Intro",
+          "date": "2026-01-30T10:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Lena Kowalski",
+              "email": "lena@cognify.edu",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Cognify builds personalized learning paths for corporate training using AI. Their system adapts content difficulty and format based on individual learning patterns. €8K MRR from 5 corporate customers. Lena is a former teacher turned product manager turned founder. Product is working but the corporate L&D market is crowded and enterprise sales is slow. Marcus's view: needs more differentiation evidence and faster growth before committing. Revisit in 6 months.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Lena, what's your completion rate vs industry average for corporate training?",
+              "start_time": "2026-01-30T10:08:00Z",
+              "end_time": "2026-01-30T10:08:15Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Our completion rate is 84% vs industry average of 23%. That's our headline metric and it's driven by the personalization engine - people actually finish training that's calibrated to their level and learning style.",
+              "start_time": "2026-01-30T10:08:16Z",
+              "end_time": "2026-01-30T10:09:00Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_cognify_001",
+          "channel": "deal-flow",
+          "date": "2026-01-30T16:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Cognify Education - interesting but too early. 84% completion rate is a strong signal but €8K MRR and 5 customers isn't enough evidence yet. The corporate L&D space has a lot of noise. Watching for now - revisit when they hit €30K MRR or land a named enterprise customer.",
+          "thread_ts": "1738238400.000100",
+          "reply_count": 0,
+          "reactions": [
+            {
+              "name": "eyes",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_cognify_001",
+          "threadId": "thread_cognify_001",
+          "date": "2026-04-02T09:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "from": "lena@cognify.edu",
+          "to": "marcus@yellowvc.com",
+          "subject": "Cognify - Q1 update",
+          "body": "Marcus, Q1 update as promised: MRR grew to €19K (from €8K in January), closed Bosch as a customer last week (1,200 employees in pilot, ACV €72K annually). Total customers now 11. We're seeing strong word-of-mouth within corporate L&D networks. Still raising pre-seed - €800K at €4M pre. Would love to reconnect. Lena",
+          "snippet": "Marcus, Q1 update as promised: MRR grew to €19K..."
+        }
+      ]
+    },
+    {
+      "id": "company_012",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack"
+      ],
+      "organization": {
+        "name": "Orbit Supply",
+        "domain": "orbitsupply.io",
+        "affinity_id": 7133012
+      },
+      "founder": {
+        "first_name": "James",
+        "last_name": "Oduya",
+        "email": "james@orbitsupply.io",
+        "affinity_id": 89012
+      },
+      "opportunity": {
+        "affinity_id": 1012,
+        "name": "Orbit Supply - Seed",
+        "status": "In Review"
+      },
+      "field_values": {
+        "sector": "Supply Chain / AI",
+        "stage": "Seed",
+        "mrr": 44000,
+        "sentiment": "Positive",
+        "owner": "Clara Hoffmann",
+        "follow_up": "2026-05-25"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_orbit_001",
+          "title": "Orbit Supply - Intro call",
+          "date": "2026-03-20T14:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "James Oduya",
+              "email": "james@orbitsupply.io",
+              "role": "CEO"
+            },
+            {
+              "name": "Nadia Bergström",
+              "email": "nadia@orbitsupply.io",
+              "role": "CPO"
+            }
+          ],
+          "summary_text": "Orbit Supply builds AI-powered inventory optimization for e-commerce retailers. Their platform reduces stockouts by 67% and overstock by 41% through demand forecasting that incorporates 200+ external signals including social trends, weather, and economic indicators. €44K MRR, 19 customers mostly in fashion and consumer electronics. James was previously supply chain director at Zalando, Nadia was a product manager at Shopify. Very strong domain expertise. Clara flagged as high priority in supply chain theme.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "James, the 200 external signals claim - how much of your forecast accuracy comes from those vs pure historical sales data?",
+              "start_time": "2026-03-20T14:05:00Z",
+              "end_time": "2026-03-20T14:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Great question. In ablation studies, historical sales data gives us roughly 76% accuracy baseline. The external signals add another 18% to get us to 94%. The biggest single contributor is social sentiment on TikTok and Instagram for fashion categories - trends move before they show up in sales data by 3-6 weeks. We're essentially predicting demand before it materializes.",
+              "start_time": "2026-03-20T14:05:21Z",
+              "end_time": "2026-03-20T14:06:45Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_orbit_001",
+          "channel": "deal-flow",
+          "date": "2026-03-20T19:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Orbit Supply call done - really impressive. James ran supply chain for Zalando DACH, he knows this problem viscerally. The social signal integration for fashion forecasting is genuinely novel - I haven't seen that combination before. €44K MRR with 19 customers is solid for seed. Fast tracking to due diligence. @Sophie Lindqvist - potential co-invest angle here given your portfolio in e-commerce?",
+          "thread_ts": "1742495400.000100",
+          "reply_count": 2,
+          "reactions": [
+            {
+              "name": "fire",
+              "count": 3
+            },
+            {
+              "name": "chart_with_upwards_trend",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_orbit_001",
+          "threadId": "thread_orbit_001",
+          "date": "2026-03-25T09:00:00Z",
+          "yellow_participant": "Clara Hoffmann",
+          "firm": "Yellow",
+          "from": "james@orbitsupply.io",
+          "to": "clara@yellowvc.com",
+          "subject": "Orbit Supply - data room + March metrics",
+          "body": "Clara, data room is live at the link. March update: MRR hit €51K (+16% MoM). We signed Hugo Boss last week for a 6-month pilot across their European e-commerce operation - this is our largest customer to date, ACV €180K if pilot converts to full deployment. The pilot covers 8,000 SKUs which will be our most complex implementation. Also worth noting: our churn is zero - no customer has ever left. NRR is 128%. James",
+          "snippet": "Clara, data room is live..."
+        }
+      ]
+    },
+    {
+      "id": "company_013",
+      "sources": [
+        "affinity",
+        "granola",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Tessera Security",
+        "domain": "tessera.security",
+        "affinity_id": 7133013
+      },
+      "founder": {
+        "first_name": "Viktor",
+        "last_name": "Novak",
+        "email": "viktor@tessera.security",
+        "affinity_id": 89013
+      },
+      "opportunity": {
+        "affinity_id": 1013,
+        "name": "Tessera Security - Pre-seed",
+        "status": "Passed"
+      },
+      "field_values": {
+        "sector": "Cybersecurity",
+        "stage": "Pre-seed",
+        "mrr": 2500,
+        "sentiment": "Negative",
+        "owner": "Sophie Lindqvist",
+        "follow_up": null
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_tessera_001",
+          "title": "Tessera Security - Intro call",
+          "date": "2026-02-05T15:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Viktor Novak",
+              "email": "viktor@tessera.security",
+              "role": "CEO"
+            }
+          ],
+          "summary_text": "Tessera Security is building zero-trust network access for SMEs. Viktor is a solo founder, former penetration tester. Product is very early - MVP with 3 paying customers. Main concerns: extremely crowded space (Cloudflare Zero Trust, Zscaler, Cisco), solo founder, and the SME security market has poor willingness to pay. Sophie passing quickly.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Viktor, Cloudflare has a free tier for zero-trust access. How do you compete with free?",
+              "start_time": "2026-02-05T15:05:00Z",
+              "end_time": "2026-02-05T15:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Cloudflare's free tier requires technical expertise to configure. We're building for non-technical SME owners - setup takes 15 minutes with no IT knowledge required. Our target customer can't configure Cloudflare.",
+              "start_time": "2026-02-05T15:05:21Z",
+              "end_time": "2026-02-05T15:06:00Z"
+            },
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "That's a fair point. What's your evidence that SME owners will pay for this? Security budget at SMEs is notoriously low.",
+              "start_time": "2026-02-05T15:06:01Z",
+              "end_time": "2026-02-05T15:06:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Our 3 customers are paying €79/month. They came from word of mouth. I haven't done proper distribution yet.",
+              "start_time": "2026-02-05T15:06:21Z",
+              "end_time": "2026-02-05T15:06:40Z"
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_tessera_001",
+          "threadId": "thread_tessera_001",
+          "date": "2026-02-07T10:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "from": "sophie@yellowvc.com",
+          "to": "viktor@tessera.security",
+          "subject": "Tessera Security - Yellow decision",
+          "body": "Viktor, thank you for the call this week. After reflection, we've decided to pass on Tessera at this stage. Our concerns are: the market is dominated by well-funded incumbents with free tiers, solo founder risk, and limited evidence of SME willingness to pay at scale. These aren't insurmountable but they're significant for where you are right now. We'd encourage you to find a technical co-founder, get to 20+ paying customers, and demonstrate the distribution channel before approaching institutional investors. Happy to reconnect in 6-9 months if things progress. Best, Sophie",
+          "snippet": "Viktor, thank you for the call this week..."
+        }
+      ]
+    },
+    {
+      "id": "company_014",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "Auro Robotics",
+        "domain": "aurorobotics.io",
+        "affinity_id": 7133014
+      },
+      "founder": {
+        "first_name": "Mei",
+        "last_name": "Zhang",
+        "email": "mei@aurorobotics.io",
+        "affinity_id": 89014
+      },
+      "opportunity": {
+        "affinity_id": 1014,
+        "name": "Auro Robotics - Series A",
+        "status": "In Review"
+      },
+      "field_values": {
+        "sector": "Robotics / Manufacturing",
+        "stage": "Series A",
+        "mrr": 98000,
+        "sentiment": "Very Positive",
+        "owner": "Marcus Weber",
+        "follow_up": "2026-06-10"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_auro_001",
+          "title": "Auro Robotics - Series A intro",
+          "date": "2026-01-14T10:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Mei Zhang",
+              "email": "mei@aurorobotics.io",
+              "role": "CEO"
+            },
+            {
+              "name": "Thomas Rieger",
+              "email": "thomas@aurorobotics.io",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "Auro Robotics builds collaborative robotic arms for SME manufacturing assembly lines. Their key innovation is a vision-language model that allows non-technical workers to program robot tasks using natural language - 'pick up the red bolt and place it in the left fixture'. Setup time is 2 hours vs 2 weeks for traditional industrial robots. €98K MRR, 22 manufacturing customers across Bavaria and Baden-Württemberg. Mei was a robotics engineer at KUKA, Thomas has a CV/ML background from TU Munich. Marcus was highly impressed - flagging as potential lead for Series A.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Mei, the natural language programming claim is bold. What's the accuracy on novel task instructions?",
+              "start_time": "2026-01-14T10:05:00Z",
+              "end_time": "2026-01-14T10:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "For tasks within training distribution - standard manufacturing assembly operations - we're at 97% first-attempt success. For truly novel tasks outside training distribution, we're at 73% which requires a human to correct and that correction gets incorporated into the model. We've found that after 6 months of operation, even novel task accuracy reaches 94% because the robot has learned the specific factory's context.",
+              "start_time": "2026-01-14T10:05:21Z",
+              "end_time": "2026-01-14T10:07:00Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_auro_001",
+          "channel": "deal-flow",
+          "date": "2026-01-14T18:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "Auro Robotics might be the best Series A I've seen this year. Natural language robot programming is the missing piece for SME robotics adoption - the traditional programming bottleneck is why most SMEs can't afford industrial robots. €98K MRR in manufacturing is extraordinary - this space usually has 12-18 month sales cycles and they're growing 20% MoM. Mei is exceptional - deep technical credibility plus clear commercial instincts. Fast-tracking to full due diligence. @Raj Patel - Project A should co-invest on this one.",
+          "thread_ts": "1736848800.000100",
+          "reply_count": 5,
+          "reactions": [
+            {
+              "name": "rocket",
+              "count": 5
+            },
+            {
+              "name": "exploding_head",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_auro_001",
+          "threadId": "thread_auro_001",
+          "date": "2026-01-20T09:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "from": "mei@aurorobotics.io",
+          "to": "marcus@yellowvc.com",
+          "subject": "Auro Robotics - data room + factory visit invite",
+          "body": "Marcus, data room is ready. I'd also like to invite you to visit one of our customer factories - Müller Precision Parts in Regensburg. They've been using Auro for 8 months and the results are striking. Their production line supervisor (who has zero programming background) now programs new robot tasks himself. We can arrange a visit any week in February. I think seeing it in operation is more convincing than any slide deck. Mei",
+          "snippet": "Marcus, data room is ready..."
+        },
+        {
+          "source": "granola",
+          "id": "not_auro_002",
+          "title": "Auro Robotics - Factory visit Müller Precision Parts",
+          "date": "2026-02-06T10:00:00Z",
+          "yellow_participant": "Marcus Weber",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Mei Zhang",
+              "email": "mei@aurorobotics.io",
+              "role": "CEO"
+            },
+            {
+              "name": "Hans Müller",
+              "email": "hans@muellerprecision.de",
+              "role": "CEO, Müller Precision Parts"
+            }
+          ],
+          "summary_text": "Factory visit to Müller Precision Parts in Regensburg. Saw 4 Auro robots operating on 3 different assembly tasks. Most impressive moment: factory floor supervisor Karl (no engineering background, 25 years on the floor) demonstrated programming a new sorting task live in natural language in 8 minutes. The robot executed correctly on first attempt. Hans Müller confirmed: productivity up 34%, overtime down 60%, one quality escape in 8 months vs 12 per year previously. Marcus left with very high conviction - this is real.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Hans, what was your biggest hesitation before adopting Auro?",
+              "start_time": "2026-02-06T11:00:00Z",
+              "end_time": "2026-02-06T11:00:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "I've looked at KUKA and ABB three times in 10 years. Always too expensive, too complex, needed an engineer to program. My guys on the floor couldn't touch it. Auro was different from day one - Karl programmed the first task himself in the demo. That sold me.",
+              "start_time": "2026-02-06T11:00:21Z",
+              "end_time": "2026-02-06T11:01:30Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "company_015",
+      "sources": [
+        "affinity",
+        "granola",
+        "slack",
+        "gmail"
+      ],
+      "organization": {
+        "name": "PolarDB",
+        "domain": "polardb.dev",
+        "affinity_id": 7133015
+      },
+      "founder": {
+        "first_name": "Sven",
+        "last_name": "Eriksson",
+        "email": "sven@polardb.dev",
+        "affinity_id": 89015
+      },
+      "opportunity": {
+        "affinity_id": 1015,
+        "name": "PolarDB - Seed",
+        "status": "In Review"
+      },
+      "field_values": {
+        "sector": "Developer Tools / Data Infrastructure",
+        "stage": "Seed",
+        "mrr": 19000,
+        "sentiment": "Positive",
+        "owner": "Sophie Lindqvist",
+        "follow_up": "2026-06-01"
+      },
+      "interactions": [
+        {
+          "source": "granola",
+          "id": "not_polardb_001",
+          "title": "PolarDB - Intro call",
+          "date": "2026-03-25T11:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Sven Eriksson",
+              "email": "sven@polardb.dev",
+              "role": "CEO"
+            },
+            {
+              "name": "Anna Lindholm",
+              "email": "anna@polardb.dev",
+              "role": "CTO"
+            }
+          ],
+          "summary_text": "PolarDB is building a vector database optimized for real-time RAG applications at scale. Their key technical innovation is a novel indexing approach they call 'temporal graph indexing' that maintains query accuracy as data updates in real time - existing solutions like Pinecone and Weaviate suffer accuracy degradation when the underlying data changes frequently. €19K MRR, 12 paying customers mostly AI startups and scale-ups. Sven was previously engineering lead at Spotify's ML platform, Anna has a database systems PhD from KTH. Sophie flagged as technically differentiated in a hot space.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Sven, the accuracy degradation problem with real-time updates - how big is this actually in practice?",
+              "start_time": "2026-03-25T11:05:00Z",
+              "end_time": "2026-03-25T11:05:20Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "For static datasets it doesn't matter - Pinecone is fine. But for use cases where the knowledge base updates frequently - customer support where products change, financial data, news - existing solutions degrade to 60-70% recall accuracy within days of a major update. Our temporal graph approach maintains 95%+ recall regardless of update frequency. We benchmarked this against every major competitor and published the results openly.",
+              "start_time": "2026-03-25T11:05:21Z",
+              "end_time": "2026-03-25T11:07:00Z"
+            }
+          ]
+        },
+        {
+          "source": "slack",
+          "id": "slack_polardb_001",
+          "channel": "deal-flow",
+          "date": "2026-03-25T17:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [],
+          "text": "PolarDB intro done. Technically very differentiated - the real-time accuracy problem is real and I've heard this complaint from AI startups in our portfolio. Anna's database systems background is legit. €19K MRR with 12 customers in developer tools is decent traction. The open benchmark publication is a bold move - transparent and builds community trust. Competitive risk: well-funded players can hire to solve this but it's a non-trivial research problem. Requesting a technical deep dive next week.",
+          "thread_ts": "1742904000.000100",
+          "reply_count": 2,
+          "reactions": [
+            {
+              "name": "brain",
+              "count": 2
+            },
+            {
+              "name": "thumbsup",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "source": "gmail",
+          "id": "msg_polardb_001",
+          "threadId": "thread_polardb_001",
+          "date": "2026-03-28T09:00:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "from": "sven@polardb.dev",
+          "to": "sophie@yellowvc.com",
+          "subject": "PolarDB - benchmark paper + customer list",
+          "body": "Sophie, sharing the link to our published benchmark paper (also submitted to VLDB 2026). Customer reference list attached - feel free to contact any of them. One update: we just launched a managed cloud version yesterday and had 47 signups in the first 24 hours from the developer community. Not yet converting to paid but signals strong product-market fit in the developer community. We're raising €1.8M seed at €9M pre. Let me know when works for the technical session. Sven",
+          "snippet": "Sophie, sharing the link to our published benchmark..."
+        },
+        {
+          "source": "granola",
+          "id": "not_polardb_noise_001",
+          "title": "Yellow - office coffee catch-up",
+          "date": "2026-03-26T09:30:00Z",
+          "yellow_participant": "Sophie Lindqvist",
+          "firm": "Yellow",
+          "external_participants": [
+            {
+              "name": "Clara Hoffmann",
+              "email": "clara@yellowvc.com",
+              "role": "Partner, Yellow"
+            }
+          ],
+          "summary_text": "Informal internal catch-up between Sophie and Clara. Discussed pipeline overview, personal updates, upcoming Berlin Tech conference attendance. No specific startup discussions. Sophie mentioned she's excited about PolarDB but Clara wasn't in the meeting.",
+          "transcript": [
+            {
+              "speaker": {
+                "source": "microphone"
+              },
+              "text": "Clara, are you going to the Berlin Tech conference next month?",
+              "start_time": "2026-03-26T09:31:00Z",
+              "end_time": "2026-03-26T09:31:10Z"
+            },
+            {
+              "speaker": {
+                "source": "speaker"
+              },
+              "text": "Yes, I'm speaking on the climate tech panel on Thursday. You should come to that session.",
+              "start_time": "2026-03-26T09:31:11Z",
+              "end_time": "2026-03-26T09:31:30Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

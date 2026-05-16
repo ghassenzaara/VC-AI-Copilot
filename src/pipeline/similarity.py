@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 
 from src.database.postgres import PostgresClient
 from src.database.neo4j_client import Neo4jClient
-from src.llm.gemini_client import GeminiClient, GeminiError
+from src.llm.watsonx_client import WatsonXClient, WatsonXError
 
 
 logger = logging.getLogger(__name__)
@@ -22,18 +22,18 @@ class SimilarityComputer:
         self,
         postgres_client: PostgresClient,
         neo4j_client: Neo4jClient,
-        gemini_client: Optional[GeminiClient] = None
+        watsonx_client: Optional[WatsonXClient] = None
     ):
         """Initialize similarity computer
-        
+
         Args:
             postgres_client: PostgreSQL client for embeddings
             neo4j_client: Neo4j client for relationships
-            gemini_client: Optional Gemini client for generating embeddings
+            watsonx_client: Optional WatsonX client for generating embeddings
         """
         self.postgres = postgres_client
         self.neo4j = neo4j_client
-        self.gemini = gemini_client
+        self.watsonx = watsonx_client
         self.logger = logging.getLogger(self.__class__.__name__)
     
     def generate_company_embedding(
@@ -53,13 +53,13 @@ class SimilarityComputer:
         # Build embedding text from company data
         embedding_text = self._build_embedding_text(company_data)
 
-        # Generate real embedding via Gemini's embedding model
-        if not self.gemini:
+        # Generate real embedding via WatsonX's embedding model
+        if not self.watsonx:
             raise RuntimeError(
-                "SimilarityComputer requires a gemini_client to generate embeddings. "
+                "SimilarityComputer requires a watsonx_client to generate embeddings. "
                 "Pass one to the constructor."
             )
-        embedding = self.gemini.embed_content(
+        embedding = self.watsonx.embed_content(
             text=embedding_text,
             output_dimensionality=1536,
             task_type="SEMANTIC_SIMILARITY",

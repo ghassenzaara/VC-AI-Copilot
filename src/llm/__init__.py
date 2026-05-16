@@ -1,3 +1,3 @@
-"""LLM module for Gemini API integration"""
+"""LLM module for IBM WatsonX integration"""
 
 # Made with Bob

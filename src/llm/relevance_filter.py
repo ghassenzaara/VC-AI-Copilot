@@ -1,7 +1,7 @@
 """Relevance Filter - Filters out non-deal-related interactions
 
-Uses Gemini 2.5 to determine if an interaction contains meaningful deal signal
-before expensive extraction processing.
+Uses IBM WatsonX (Granite 4.0 H Small) to determine if an interaction
+contains meaningful deal signal before expensive extraction processing.
 """
 
 import json
@@ -11,7 +11,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from .gemini_client import GeminiClient, GeminiError
+from .watsonx_client import WatsonXClient, WatsonXError
 
 
 logger = logging.getLogger(__name__)
@@ -31,31 +31,31 @@ class RelevanceDecision(BaseModel):
 
 
 class RelevanceFilter:
-    """Filters interactions for deal relevance using Gemini 2.5
-    
+    """Filters interactions for deal relevance using IBM WatsonX
+
     The filter uses a carefully crafted prompt to identify interactions that:
     - Mention specific startups or founders
     - Contain deal decisions or investment discussions
     - Include due diligence or validation conversations
-    
+
     And filters out:
     - Generic internal meetings
     - Marketing emails
     - Social/personal conversations
     """
-    
+
     def __init__(
         self,
-        gemini_client: GeminiClient,
+        watsonx_client: WatsonXClient,
         prompt_path: Optional[str] = None
     ):
         """Initialize relevance filter
-        
+
         Args:
-            gemini_client: Configured GeminiClient instance
+            watsonx_client: Configured WatsonXClient instance (should use the "flash" model)
             prompt_path: Path to prompt template (defaults to bundled template)
         """
-        self.client = gemini_client
+        self.client = watsonx_client
         self.logger = logging.getLogger(self.__class__.__name__)
         
         # Load prompt template
@@ -91,7 +91,7 @@ class RelevanceFilter:
             interaction_json = json.dumps(interaction, indent=2)
             prompt = self.prompt_template.replace('{{INTERACTION}}', interaction_json)
             
-            # Call Gemini
+            # Call WatsonX
             self.logger.debug(f"Filtering interaction {interaction.get('id')}")
             response = self.client.generate_json(
                 prompt=prompt,
@@ -109,8 +109,8 @@ class RelevanceFilter:
             
             return decision
             
-        except GeminiError as e:
-            self.logger.error(f"Gemini error filtering interaction: {e}")
+        except WatsonXError as e:
+            self.logger.error(f"WatsonX error filtering interaction: {e}")
             # BUG-021: errored=True so batch stats can distinguish from real decisions
             return RelevanceDecision(
                 relevant=True,
