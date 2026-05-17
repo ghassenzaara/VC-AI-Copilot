@@ -112,19 +112,22 @@ app = FastAPI(
 )
 
 
-# CORS — restrict to the configured frontend origin(s). Set ALLOWED_ORIGINS to
-# a comma-separated list of full origins (e.g. https://app.example.com) for
-# production. Defaults to localhost dev URLs.
+# CORS — restrict to the configured frontend origin(s).
+# ALLOWED_ORIGINS: comma-separated exact origins (e.g. https://vista.vercel.app)
+# ALLOWED_ORIGIN_REGEX: optional regex (e.g. https://vista-.*\.vercel\.app) to
+#   cover Vercel preview / branch deploys without listing each one.
 _default_origins = "http://localhost:3000,http://127.0.0.1:3000"
 _origins = [
-    o.strip()
+    o.strip().rstrip("/")
     for o in os.environ.get("ALLOWED_ORIGINS", _default_origins).split(",")
     if o.strip()
 ]
+_origin_regex = os.environ.get("ALLOWED_ORIGIN_REGEX") or None
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_origins,
+    allow_origin_regex=_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
