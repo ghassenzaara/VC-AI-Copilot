@@ -17,10 +17,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY src/ ./src/
-COPY data/ ./data/
 
-# Create necessary directories
-RUN mkdir -p /app/logs
+# Mock data for the admin pipeline runner.
+COPY mock_data.json ./
+
+# Create runtime directories (data/ is created empty so any code path that
+# expects it doesn't crash; logs/ for app logs).
+RUN mkdir -p /app/data /app/logs
 
 # Expose port
 EXPOSE 8000
