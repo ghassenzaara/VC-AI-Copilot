@@ -1,8 +1,6 @@
-"""Market Map Clustering - Groups companies by embedding similarity
+"""Market Map Clustering - per-user company clustering for the market map.
 
-This module implements clustering algorithms to group similar companies
-for market map visualization. It supports both K-means (fast, deterministic)
-and HDBSCAN (density-based, finds natural clusters).
+All reads, writes, and Cypher merges are scoped to the calling user's `clerk_id`.
 """
 
 import json
@@ -21,340 +19,317 @@ logger = logging.getLogger(__name__)
 
 
 class MarketMapClusterer:
-    """Clusters companies for market map visualization"""
-    
+    """Clusters one user's companies for market map visualization."""
+
     def __init__(
         self,
         postgres_client: PostgresClient,
         neo4j_client: Neo4jClient,
-        algorithm: str = "kmeans",  # "kmeans" or "hdbscan"
-        n_clusters: Optional[int] = None,  # Auto-detect if None
+        algorithm: str = "kmeans",
+        n_clusters: Optional[int] = None,
     ):
-        """Initialize clusterer
-        
-        Args:
-            postgres_client: PostgreSQL client
-            neo4j_client: Neo4j client
-            algorithm: Clustering algorithm ("kmeans" or "hdbscan")
-            n_clusters: Number of clusters (None = auto-detect)
-        """
         self.postgres = postgres_client
         self.neo4j = neo4j_client
         self.algorithm = algorithm
         self.n_clusters = n_clusters
         self.logger = logging.getLogger(self.__class__.__name__)
-    
-    def compute_clusters(self) -> Dict[str, Any]:
-        """Compute clusters for all companies with embeddings
-        
-        Returns:
-            Dict with clustering statistics
-        """
-        self.logger.info("Starting market map clustering...")
-        
-        # 1. Fetch all embeddings
-        embeddings_data = self._fetch_embeddings()
+
+    def compute_clusters(self, clerk_id: str) -> Dict[str, Any]:
+        self.logger.info("Starting market map clustering for user=%s", clerk_id)
+
+        embeddings_data = self._fetch_embeddings(clerk_id)
         if len(embeddings_data) < 3:
             raise ValueError("Need at least 3 companies to cluster")
-        
+
         company_ids = [row['company_id'] for row in embeddings_data]
         embeddings = np.array([row['embedding'] for row in embeddings_data])
-        
-        self.logger.info(f"Clustering {len(company_ids)} companies...")
-        
-        # 2. Determine optimal number of clusters if not specified
+
+        self.logger.info("Clustering %d companies...", len(company_ids))
+
         if self.n_clusters is None:
             self.n_clusters = self._determine_optimal_clusters(embeddings)
-        
-        # 3. Run clustering algorithm
+
         if self.algorithm == "kmeans":
             labels, centroids = self._kmeans_clustering(embeddings)
         elif self.algorithm == "hdbscan":
             labels, centroids = self._hdbscan_clustering(embeddings)
         else:
             raise ValueError(f"Unknown algorithm: {self.algorithm}")
-        
-        # 4. Store cluster definitions
-        cluster_ids = self._store_cluster_definitions(centroids)
-        
-        # 5. Store company assignments
-        self._store_company_assignments(company_ids, labels, embeddings, centroids, cluster_ids)
-        
-        # 6. Compute cluster metadata
-        self._compute_cluster_metadata(cluster_ids)
-        
-        # 7. Create Neo4j relationships
-        self._create_neo4j_cluster_relationships(company_ids, labels, cluster_ids)
-        
-        # 8. Calculate statistics
-        stats = self._calculate_clustering_stats(labels, embeddings)
-        
-        self.logger.info(
-            f"Clustering complete: {len(set(labels))} clusters, "
-            f"silhouette score: {stats['silhouette_score']:.3f}"
+
+        cluster_ids = self._store_cluster_definitions(clerk_id, centroids)
+        self._store_company_assignments(
+            clerk_id, company_ids, labels, embeddings, centroids, cluster_ids
         )
-        
+        # Create Neo4j :Cluster nodes + BELONGS_TO_CLUSTER edges BEFORE
+        # metadata so metadata can reflect the actual cluster membership.
+        self._create_neo4j_cluster_relationships(clerk_id, company_ids, labels, cluster_ids)
+        self._compute_cluster_metadata(clerk_id, cluster_ids)
+
+        stats = self._calculate_clustering_stats(labels, embeddings)
+        self.logger.info(
+            "Clustering complete: %d clusters, silhouette score: %.3f",
+            len(set(labels)), stats['silhouette_score'],
+        )
         return stats
-    
-    def _fetch_embeddings(self) -> List[Dict[str, Any]]:
-        """Fetch all company embeddings from PostgreSQL"""
+
+    def _fetch_embeddings(self, clerk_id: str) -> List[Dict[str, Any]]:
         query = """
             SELECT company_id, embedding
             FROM company_embeddings
-            WHERE embedding IS NOT NULL
+            WHERE owner_clerk_id = %s AND embedding IS NOT NULL
             ORDER BY company_id
         """
-        return self.postgres.execute_query(query, fetch=True)
-    
+        return self.postgres.execute_query(query, (clerk_id,), fetch=True)
+
     def _determine_optimal_clusters(self, embeddings: np.ndarray) -> int:
-        """Use elbow method to find optimal k
-        
-        Tests k from 3 to sqrt(n), picks best silhouette score
-        """
         n = len(embeddings)
-        max_k = min(int(np.sqrt(n)), 15)  # Cap at 15 clusters
+        max_k = min(int(np.sqrt(n)), 15)
         min_k = 3
-        
+
         best_k = min_k
         best_score = -1
-        
+
         for k in range(min_k, max_k + 1):
             kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
             labels = kmeans.fit_predict(embeddings)
             score = silhouette_score(embeddings, labels)
-            
-            self.logger.debug(f"k={k}, silhouette={score:.3f}")
-            
+            self.logger.debug("k=%d, silhouette=%.3f", k, score)
             if score > best_score:
                 best_score = score
                 best_k = k
-        
-        self.logger.info(f"Optimal clusters: {best_k} (silhouette={best_score:.3f})")
+
+        self.logger.info("Optimal clusters: %d (silhouette=%.3f)", best_k, best_score)
         return best_k
-    
+
     def _kmeans_clustering(
-        self,
-        embeddings: np.ndarray
+        self, embeddings: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Run K-means clustering
-        
-        Returns:
-            (labels, centroids)
-        """
         kmeans = KMeans(
             n_clusters=self.n_clusters,
             random_state=42,
             n_init=10,
-            max_iter=300
+            max_iter=300,
         )
         labels = kmeans.fit_predict(embeddings)
-        centroids = kmeans.cluster_centers_
-        
-        return labels, centroids
-    
+        return labels, kmeans.cluster_centers_
+
     def _hdbscan_clustering(
-        self,
-        embeddings: np.ndarray
+        self, embeddings: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Run HDBSCAN clustering (density-based)
-        
-        Returns:
-            (labels, centroids)
-        """
         clusterer = HDBSCAN(
             min_cluster_size=3,
             min_samples=2,
-            metric='euclidean'
+            metric='euclidean',
         )
         labels = clusterer.fit_predict(embeddings)
-        
-        # Compute centroids for each cluster
+
         unique_labels = set(labels)
         if -1 in unique_labels:
-            unique_labels.remove(-1)  # Remove noise cluster
-        
+            unique_labels.remove(-1)
+
         centroids = []
         for label in sorted(unique_labels):
             mask = labels == label
             centroid = embeddings[mask].mean(axis=0)
             centroids.append(centroid)
-        
+
         return labels, np.array(centroids)
-    
-    def _store_cluster_definitions(self, centroids: np.ndarray) -> List[str]:
-        """Store cluster definitions in PostgreSQL
-        
-        Returns:
-            List of cluster UUIDs
-        """
-        cluster_ids = []
-        
+
+    def _store_cluster_definitions(
+        self, clerk_id: str, centroids: np.ndarray
+    ) -> List[str]:
+        cluster_ids: List[str] = []
         for i, centroid in enumerate(centroids):
             query = """
-                INSERT INTO market_clusters (cluster_number, centroid)
-                VALUES (%s, %s)
+                INSERT INTO market_clusters (owner_clerk_id, cluster_number, centroid)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (owner_clerk_id, cluster_number) DO UPDATE
+                    SET centroid   = EXCLUDED.centroid,
+                        updated_at = NOW()
                 RETURNING id
             """
             result = self.postgres.execute_query(
-                query,
-                (i, centroid.tolist()),
-                fetch=True
+                query, (clerk_id, i, centroid.tolist()), fetch=True
             )
-            cluster_ids.append(result[0]['id'])
-        
+            # Force str — psycopg2 returns UUID objects but Neo4j stores the
+            # property as a string; passing the UUID native type produces a
+            # silent mismatch when we later MATCH on `id`.
+            cluster_ids.append(str(result[0]['id']))
         return cluster_ids
-    
+
     def _store_company_assignments(
         self,
+        clerk_id: str,
         company_ids: List[str],
         labels: np.ndarray,
         embeddings: np.ndarray,
         centroids: np.ndarray,
-        cluster_ids: List[str]
+        cluster_ids: List[str],
     ):
-        """Store company-to-cluster assignments"""
         for company_id, label, embedding in zip(company_ids, labels, embeddings):
-            if label == -1:  # Noise in HDBSCAN
+            if label == -1:
                 continue
-            
             cluster_id = cluster_ids[label]
             centroid = centroids[label]
             distance = np.linalg.norm(embedding - centroid)
-            
             query = """
                 INSERT INTO company_cluster_assignments
-                (company_id, cluster_id, distance_to_centroid)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (company_id) DO UPDATE
-                SET cluster_id = EXCLUDED.cluster_id,
+                    (owner_clerk_id, company_id, cluster_id, distance_to_centroid)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (owner_clerk_id, company_id) DO UPDATE
+                SET cluster_id           = EXCLUDED.cluster_id,
                     distance_to_centroid = EXCLUDED.distance_to_centroid,
-                    assigned_at = NOW()
+                    assigned_at          = NOW()
             """
-            self.postgres.execute_query(query, (company_id, cluster_id, float(distance)))
-    
-    def _compute_cluster_metadata(self, cluster_ids: List[str]):
-        """Compute metadata for each cluster (for LLM naming)"""
+            # cluster_id is already a str (forced in _store_cluster_definitions);
+            # PG accepts both UUID and string for uuid columns.
+            self.postgres.execute_query(
+                query,
+                (clerk_id, company_id, cluster_id, float(distance)),
+                fetch=False,
+            )
+
+    def _compute_cluster_metadata(self, clerk_id: str, cluster_ids: List[str]):
+        """Read cluster members via BELONGS_TO_CLUSTER and write aggregated
+        metadata. Runs AFTER Neo4j relationships exist so we read the truth,
+        not a stale PG sample."""
         for cluster_id in cluster_ids:
-            # Fetch companies in this cluster from Neo4j
             query = """
-                MATCH (c:Company)
-                WHERE c.id IN (
-                    SELECT company_id 
-                    FROM company_cluster_assignments 
-                    WHERE cluster_id = $cluster_id
-                )
+                MATCH (cl:Cluster {clerk_id: $clerk_id, id: $cluster_id})
+                      <-[:BELONGS_TO_CLUSTER]-(c:Company {clerk_id: $clerk_id})
                 RETURN c.id as company_id, c.name as name, c.one_liner as one_liner,
                        c.sector as sector, c.stage as stage, c.tags as tags,
                        c.deal_momentum as deal_momentum
                 ORDER BY c.name
             """
-            companies = self.neo4j.execute_query(query, {"cluster_id": cluster_id})
-            
+            companies = self.neo4j.execute_query(
+                query, {"clerk_id": clerk_id, "cluster_id": cluster_id}
+            )
             if not companies:
+                self.logger.warning(
+                    "Cluster %s has no Neo4j members — skipping metadata write",
+                    cluster_id,
+                )
                 continue
-            
-            # Aggregate metadata
+
             sectors = [c['sector'] for c in companies if c.get('sector')]
             stages = [c['stage'] for c in companies if c.get('stage')]
-            tags = []
+            tags: List[str] = []
             for c in companies:
-                if c.get('tags'):
-                    if isinstance(c['tags'], list):
-                        tags.extend(c['tags'])
-            
-            # Get top 3 most common
+                if c.get('tags') and isinstance(c['tags'], list):
+                    tags.extend(c['tags'])
+
             from collections import Counter
             common_sectors = [s for s, _ in Counter(sectors).most_common(3)]
             common_stages = [s for s, _ in Counter(stages).most_common(3)]
             common_tags = [t for t, _ in Counter(tags).most_common(5)]
-            
-            # Sample companies for LLM context (top 5)
+            # Keep ALL companies (not just 5) so naming can use full context.
             sample_companies = [
-                {"name": c['name'], "one_liner": c.get('one_liner', '')}
-                for c in companies[:5]
+                {"name": c['name'], "one_liner": c.get('one_liner', '') or ''}
+                for c in companies
             ]
-            
-            # Store metadata
-            query = """
-                INSERT INTO cluster_metadata
-                (cluster_id, common_sectors, common_stages, common_tags, sample_companies)
-                VALUES (%s, %s, %s, %s, %s)
-            """
+
+            # Refresh metadata: delete + insert so re-runs don't accumulate rows.
             self.postgres.execute_query(
-                query,
+                """
+                DELETE FROM cluster_metadata
+                WHERE owner_clerk_id = %s AND cluster_id = %s
+                """,
+                (clerk_id, cluster_id),
+                fetch=False,
+            )
+            self.postgres.execute_query(
+                """
+                INSERT INTO cluster_metadata
+                (owner_clerk_id, cluster_id, common_sectors, common_stages, common_tags, sample_companies)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
                 (
+                    clerk_id,
                     cluster_id,
                     json.dumps(common_sectors),
                     json.dumps(common_stages),
                     json.dumps(common_tags),
-                    json.dumps(sample_companies)
-                )
+                    json.dumps(sample_companies),
+                ),
+                fetch=False,
             )
-    
+            # Also keep market_clusters.company_count fresh.
+            self.postgres.execute_query(
+                """
+                UPDATE market_clusters
+                SET company_count = %s, updated_at = NOW()
+                WHERE id = %s AND owner_clerk_id = %s
+                """,
+                (len(companies), cluster_id, clerk_id),
+                fetch=False,
+            )
+
     def _create_neo4j_cluster_relationships(
         self,
+        clerk_id: str,
         company_ids: List[str],
         labels: np.ndarray,
-        cluster_ids: List[str]
+        cluster_ids: List[str],
     ):
-        """Create BELONGS_TO_CLUSTER relationships in Neo4j"""
-        # First, create Cluster nodes
+        # Create Cluster nodes per user
         for i, cluster_id in enumerate(cluster_ids):
             query = """
-                MERGE (cl:Cluster {id: $cluster_id})
+                MERGE (u:User {clerk_id: $clerk_id})
+                MERGE (cl:Cluster {clerk_id: $clerk_id, id: $cluster_id})
                 SET cl.cluster_number = $cluster_number
+                MERGE (u)-[:OWNS]->(cl)
             """
-            self.neo4j.execute_write(query, {
-                "cluster_id": cluster_id,
-                "cluster_number": i
-            })
-        
-        # Then create relationships
+            self.neo4j.execute_write(
+                query,
+                {
+                    "clerk_id": clerk_id,
+                    "cluster_id": cluster_id,
+                    "cluster_number": i,
+                },
+            )
+
         for company_id, label in zip(company_ids, labels):
             if label == -1:
                 continue
-            
             cluster_id = cluster_ids[label]
             query = """
-                MATCH (c:Company {id: $company_id})
-                MATCH (cl:Cluster {id: $cluster_id})
+                MATCH (c:Company {clerk_id: $clerk_id, id: $company_id})
+                MATCH (cl:Cluster {clerk_id: $clerk_id, id: $cluster_id})
                 MERGE (c)-[:BELONGS_TO_CLUSTER]->(cl)
             """
-            self.neo4j.execute_write(query, {
-                "company_id": company_id,
-                "cluster_id": cluster_id
-            })
-    
+            self.neo4j.execute_write(
+                query,
+                {
+                    "clerk_id": clerk_id,
+                    "company_id": company_id,
+                    "cluster_id": cluster_id,
+                },
+            )
+
     def _calculate_clustering_stats(
-        self,
-        labels: np.ndarray,
-        embeddings: np.ndarray
+        self, labels: np.ndarray, embeddings: np.ndarray
     ) -> Dict[str, Any]:
-        """Calculate clustering quality metrics"""
         unique_labels = set(labels)
         if -1 in unique_labels:
             unique_labels.remove(-1)
-        
+
         n_clusters = len(unique_labels)
-        n_noise = np.sum(labels == -1)
-        
-        # Silhouette score (only if we have 2+ clusters)
+        n_noise = int(np.sum(labels == -1))
+
         silhouette = 0.0
         if n_clusters >= 2:
             silhouette = silhouette_score(embeddings, labels)
-        
-        # Cluster sizes
-        cluster_sizes = {}
-        for label in unique_labels:
-            cluster_sizes[int(label)] = int(np.sum(labels == label))
-        
+
+        # Cast everything to native Python types so FastAPI's JSON encoder
+        # can serialize the response (numpy scalars are not JSON-serializable).
+        cluster_sizes = {
+            str(int(label)): int(np.sum(labels == label)) for label in unique_labels
+        }
         return {
-            "n_clusters": n_clusters,
-            "n_companies": len(labels),
+            "n_clusters": int(n_clusters),
+            "n_companies": int(len(labels)),
             "n_noise": n_noise,
             "silhouette_score": float(silhouette),
-            "cluster_sizes": cluster_sizes
+            "cluster_sizes": cluster_sizes,
         }
-
-
-# Made with Bob

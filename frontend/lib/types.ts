@@ -209,16 +209,49 @@ export interface ExtractionOutput {
 }
 
 // Lightweight type used for the startups list view.
+// Matches the GET /companies response from the backend; nullable fields can
+// be empty for newly-created companies missing some extractor output.
 export interface StartupSummary {
   id: string;
   name: string;
-  one_liner: string;
+  one_liner: string | null;
   sector: string;
-  stage: Stage;
+  stage: Stage | null;
   pipeline_stage: PipelineStage;
   momentum: Momentum;
   verdict: Verdict;
   last_touch_at: string;
   owner: string;
   tags: string[];
+}
+
+// Market Map Clustering Types
+export interface ClusterCompany {
+  id: string;
+  name: string;
+  one_liner: string | null;
+  sector: string | null;
+  stage: Stage | null;
+  verdict: Verdict | null;
+  momentum: Momentum | null;
+  tags: string[];
+  last_touch_at?: string;
+  owner?: string;
+}
+
+export interface MarketCluster {
+  id: string;
+  cluster_number: number;
+  name: string | null;
+  description: string | null;
+  company_count: number;
+  common_sectors: string[];
+  common_stages: string[];
+  common_tags: string[];
+  companies: ClusterCompany[];
+}
+
+export interface MarketMapResponse {
+  clusters: MarketCluster[];
+  total_companies: number;
 }

@@ -3,7 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Yellow.ai — VC Intelligence Copilot",
+  title: "Vista — VC Intelligence Copilot",
   description: "Deal intelligence dashboard for venture capital",
 };
 

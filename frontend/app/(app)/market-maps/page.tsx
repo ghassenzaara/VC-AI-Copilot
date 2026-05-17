@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -10,104 +10,192 @@ import {
   Sparkles,
   Layers,
   Info,
+  Loader2,
 } from "lucide-react";
-import { startups } from "@/lib/mock-data";
 import { MomentumBadge, VerdictBadge } from "@/components/badges";
+import { useApi } from "@/lib/use-api";
 import { cn, relativeTime } from "@/lib/utils";
-import type { StartupSummary } from "@/lib/types";
+import type { MarketCluster, MarketMapResponse, ClusterCompany } from "@/lib/types";
 
-interface Cluster {
-  id: string;
-  label: string;
-  hint: string;
-  color: string;
-  startups: StartupSummary[];
-  // Position on the canvas in % (0–100). Hand-tuned for a pleasing layout.
+interface ClusterWithLayout extends MarketCluster {
   x: number;
   y: number;
+  color: string;
 }
 
-// Group startups by their sector. We hand-place clusters on a 2D canvas
-// to mimic a force-directed layout — once the Neo4j backend is wired up
-// the positions can be computed from embedding similarity instead.
-function buildClusters(): Cluster[] {
-  const layout: Record<
-    string,
-    { hint: string; color: string; x: number; y: number }
-  > = {
-    "AI Infrastructure": {
-      hint: "ML platforms, GPU orchestration, synthetic data",
-      color: "bg-accent-green/40 border-accent-greenInk/30",
-      x: 28,
-      y: 32,
-    },
-    "Digital Health": {
-      hint: "Remote care, diagnostics, clinical workflow",
-      color: "bg-accent-blue/40 border-accent-blueInk/30",
-      x: 72,
-      y: 28,
-    },
-    FinTech: {
-      hint: "Compliance, payments, embedded finance",
-      color: "bg-accent-amber/40 border-accent-amberInk/30",
-      x: 78,
-      y: 64,
-    },
-    Mobility: {
-      hint: "Logistics, routing, autonomous fleets",
-      color: "bg-ink/10 border-ink/20",
-      x: 50,
-      y: 70,
-    },
-    "Developer Tools": {
-      hint: "Databases, observability, build tooling",
-      color: "bg-accent-red/30 border-accent-redInk/30",
-      x: 22,
-      y: 70,
-    },
-    Climate: {
-      hint: "Carbon removal, energy, sustainable hardware",
-      color: "bg-accent-green/30 border-accent-greenInk/20",
-      x: 60,
-      y: 18,
-    },
-    "Enterprise SaaS": {
-      hint: "Vertical SaaS, sales tooling, knowledge work",
-      color: "bg-accent-blue/30 border-accent-blueInk/20",
-      x: 14,
-      y: 50,
-    },
-  };
+// Color palette for clusters
+const CLUSTER_COLORS = [
+  "bg-accent-green/40 border-accent-greenInk/30",
+  "bg-accent-blue/40 border-accent-blueInk/30",
+  "bg-accent-amber/40 border-accent-amberInk/30",
+  "bg-ink/10 border-ink/20",
+  "bg-accent-red/30 border-accent-redInk/30",
+  "bg-accent-green/30 border-accent-greenInk/20",
+  "bg-accent-blue/30 border-accent-blueInk/20",
+  "bg-accent-amber/30 border-accent-amberInk/20",
+];
 
-  const bySector = new Map<string, StartupSummary[]>();
-  for (const s of startups) {
-    const list = bySector.get(s.sector) ?? [];
-    list.push(s);
-    bySector.set(s.sector, list);
-  }
+// Generate layout positions for clusters in a circular/organic pattern
+function generateClusterLayout(clusters: MarketCluster[]): ClusterWithLayout[] {
+  const n = clusters.length;
+  const radius = 35; // Distance from center
+  const centerX = 50;
+  const centerY = 50;
 
-  return Array.from(bySector.entries()).map(([sector, list]) => {
-    const cfg = layout[sector] ?? {
-      hint: "",
-      color: "bg-bg-subtle border-line",
-      x: 50,
-      y: 50,
-    };
+  return clusters.map((cluster, i) => {
+    // Distribute clusters in a circle with some randomness
+    const angle = (i / n) * 2 * Math.PI;
+    const jitter = (Math.random() - 0.5) * 10; // Add some organic variation
+    
+    const x = centerX + radius * Math.cos(angle) + jitter;
+    const y = centerY + radius * Math.sin(angle) + jitter;
+    
     return {
-      id: sector,
-      label: sector,
-      hint: cfg.hint,
-      color: cfg.color,
-      startups: list,
-      x: cfg.x,
-      y: cfg.y,
+      ...cluster,
+      x: Math.max(15, Math.min(85, x)), // Keep within bounds
+      y: Math.max(15, Math.min(85, y)),
+      color: CLUSTER_COLORS[i % CLUSTER_COLORS.length],
     };
   });
 }
 
 export default function MarketMapsPage() {
-  const clusters = useMemo(() => buildClusters(), []);
-  const [selected, setSelected] = useState<Cluster | null>(clusters[0] ?? null);
+  const api = useApi();
+  const [data, setData] = useState<MarketMapResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<ClusterWithLayout | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState<string | null>(null);
+
+  // `silent=true` skips the full-page spinner so the existing canvas stays
+  // visible while we refetch in the background (used by regenerate and any
+  // future auto-refresh). Initial mount uses silent=false so the user sees
+  // the loading state instead of an empty card.
+  const loadMap = useCallback(
+    async ({ silent = false }: { silent?: boolean } = {}) => {
+      if (!api.isReady) return;
+      if (!silent) setLoading(true);
+      try {
+        const mapData = await api.fetchMarketMap();
+        setData(mapData);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch market map:", err);
+        setError(err instanceof Error ? err.message : "Failed to load market map");
+      } finally {
+        if (!silent) setLoading(false);
+      }
+    },
+    [api],
+  );
+
+  useEffect(() => {
+    void loadMap();
+  }, [loadMap]);
+
+  const handleRegenerate = useCallback(async () => {
+    if (!api.isReady || regenerating) return;
+    setRegenerating(true);
+    setRegenError(null);
+    try {
+      await api.regenerateMarketMap();
+      // Refetch silently — the button spinner already communicates the work.
+      // The auto-select effect below handles swapping `selected` once the
+      // previously-selected cluster id is no longer in the new data.
+      await loadMap({ silent: true });
+    } catch (err) {
+      console.error("Failed to regenerate market map:", err);
+      setRegenError(
+        err instanceof Error ? err.message : "Failed to regenerate clusters",
+      );
+    } finally {
+      setRegenerating(false);
+    }
+  }, [api, regenerating, loadMap]);
+
+  const clustersWithLayout = useMemo(() => {
+    if (!data?.clusters) return [];
+    const layout = generateClusterLayout(data.clusters);
+    return layout;
+  }, [data]);
+
+  // Auto-select first cluster when data loads, OR re-point the selection
+  // after a regenerate (cluster ids change so the previous selection becomes
+  // stale). If the selected id still exists in the new data, keep it but
+  // swap to the refreshed cluster object so the side panel re-renders.
+  useEffect(() => {
+    if (clustersWithLayout.length === 0) return;
+    if (!selected) {
+      setSelected(clustersWithLayout[0]);
+      return;
+    }
+    const match = clustersWithLayout.find((c) => c.id === selected.id);
+    if (!match) {
+      setSelected(clustersWithLayout[0]);
+    } else if (match !== selected) {
+      setSelected(match);
+    }
+  }, [clustersWithLayout, selected]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[600px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-ink-muted mx-auto" />
+          <p className="mt-4 text-sm text-ink-muted">Loading market map...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="card p-8 text-center">
+        <div className="text-ink-muted mb-4">⚠️</div>
+        <h3 className="text-lg font-semibold text-ink mb-2">Failed to Load Market Map</h3>
+        <p className="text-sm text-ink-muted mb-4">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="btn-primary"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!data || clustersWithLayout.length === 0) {
+    return (
+      <div className="card p-8 text-center">
+        <div className="text-ink-muted mb-4">📊</div>
+        <h3 className="text-lg font-semibold text-ink mb-2">No Clusters Yet</h3>
+        <p className="text-sm text-ink-muted mb-4">
+          Run the clustering algorithm to generate market map clusters.
+        </p>
+        <button
+          onClick={handleRegenerate}
+          disabled={regenerating}
+          className={cn("btn-primary", regenerating && "opacity-60 cursor-not-allowed")}
+        >
+          {regenerating ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              Generating…
+            </>
+          ) : (
+            <>
+              <Sparkles size={14} />
+              Generate Clusters
+            </>
+          )}
+        </button>
+        {regenError && (
+          <p className="mt-3 text-xs text-accent-redInk">{regenError}</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -119,8 +207,8 @@ export default function MarketMapsPage() {
             Market Maps
           </h1>
           <p className="mt-1 text-sm text-ink-muted max-w-2xl">
-            Clusters generated from interaction embeddings and shared market
-            signals. Click a cluster to inspect the startups inside it.
+            AI-generated clusters from company embeddings and LLM analysis.
+            Click a cluster to inspect the companies inside it.
           </p>
         </div>
 
@@ -133,12 +221,35 @@ export default function MarketMapsPage() {
             <Layers size={14} />
             By sector
           </button>
-          <button className="btn-primary">
-            <Sparkles size={14} />
-            Regenerate
+          <button
+            onClick={handleRegenerate}
+            disabled={regenerating}
+            className={cn(
+              "btn-primary",
+              regenerating && "opacity-60 cursor-not-allowed",
+            )}
+            title="Wipe existing clusters and re-run clustering + naming"
+          >
+            {regenerating ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                Regenerating…
+              </>
+            ) : (
+              <>
+                <Sparkles size={14} />
+                Regenerate
+              </>
+            )}
           </button>
         </div>
       </div>
+
+      {regenError && (
+        <div className="card-subtle p-3 text-sm text-accent-redInk">
+          {regenError}
+        </div>
+      )}
 
       {/* Canvas + side panel */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
@@ -152,8 +263,8 @@ export default function MarketMapsPage() {
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
           >
-            {clusters.flatMap((c, i) =>
-              clusters.slice(i + 1).map((other) => {
+            {clustersWithLayout.flatMap((c, i) =>
+              clustersWithLayout.slice(i + 1).map((other) => {
                 const dx = c.x - other.x;
                 const dy = c.y - other.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
@@ -176,8 +287,8 @@ export default function MarketMapsPage() {
             )}
           </svg>
 
-          {clusters.map((c) => {
-            const size = Math.min(170, 70 + c.startups.length * 22);
+          {clustersWithLayout.map((c) => {
+            const size = Math.min(170, 70 + c.company_count * 22);
             const isSelected = selected?.id === c.id;
             return (
               <motion.button
@@ -189,7 +300,7 @@ export default function MarketMapsPage() {
                   type: "spring",
                   stiffness: 200,
                   damping: 22,
-                  delay: 0.05 * clusters.indexOf(c),
+                  delay: 0.05 * clustersWithLayout.indexOf(c),
                 }}
                 whileHover={{ scale: 1.04 }}
                 className={cn(
@@ -204,15 +315,12 @@ export default function MarketMapsPage() {
                   top: `calc(${c.y}% - ${size / 2}px)`,
                 }}
               >
-                <div className="text-[11px] uppercase tracking-wider text-ink/70">
-                  Cluster
-                </div>
-                <div className="text-sm font-semibold text-ink leading-tight mt-0.5">
-                  {c.label}
+                <div className="text-sm font-semibold text-ink leading-tight">
+                  {c.name || "Unnamed cluster"}
                 </div>
                 <div className="mt-1 pill bg-white/80 text-ink-muted text-[10px]">
-                  {c.startups.length}{" "}
-                  {c.startups.length === 1 ? "deal" : "deals"}
+                  {c.company_count}{" "}
+                  {c.company_count === 1 ? "company" : "companies"}
                 </div>
               </motion.button>
             );
@@ -223,13 +331,13 @@ export default function MarketMapsPage() {
             <div className="flex items-center gap-2 text-ink-muted">
               <Network size={12} />
               <span className="font-medium text-ink">
-                {clusters.length} clusters
+                {clustersWithLayout.length} clusters
               </span>
               <span>·</span>
-              <span>{startups.length} startups mapped</span>
+              <span>{data.total_companies} companies mapped</span>
             </div>
             <div className="text-[11px] text-ink-faint mt-1">
-              Edge = shared sector or thematic overlap.
+              Generated from embedding similarity.
             </div>
           </div>
 
@@ -249,7 +357,7 @@ export default function MarketMapsPage() {
                 <div>
                   <div className="text-xs text-ink-muted">Selected cluster</div>
                   <div className="mt-1 text-xl font-semibold text-ink">
-                    {selected.label}
+                    {selected.name || "Unnamed cluster"}
                   </div>
                 </div>
                 <div
@@ -260,35 +368,54 @@ export default function MarketMapsPage() {
                 />
               </div>
 
-              {selected.hint && (
+              {selected.description && (
                 <p className="mt-2 text-xs text-ink-muted leading-relaxed">
-                  {selected.hint}
+                  {selected.description}
                 </p>
               )}
 
+              {/* Cluster metadata */}
+              {((selected.common_sectors?.length ?? 0) > 0 ||
+                (selected.common_stages?.length ?? 0) > 0) && (
+                <div className="mt-3 space-y-2">
+                  {(selected.common_sectors?.length ?? 0) > 0 && (
+                    <div className="text-xs">
+                      <span className="text-ink-faint">Sectors:</span>{" "}
+                      <span className="text-ink">{selected.common_sectors.join(", ")}</span>
+                    </div>
+                  )}
+                  {(selected.common_stages?.length ?? 0) > 0 && (
+                    <div className="text-xs">
+                      <span className="text-ink-faint">Stages:</span>{" "}
+                      <span className="text-ink">{selected.common_stages.join(", ")}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="mt-4 grid grid-cols-3 gap-2">
-                <Stat label="Deals" value={String(selected.startups.length)} />
+                <Stat label="Companies" value={String(selected.company_count)} />
                 <Stat
                   label="Accelerating"
                   value={String(
-                    selected.startups.filter((s) => s.momentum === "accelerating")
+                    selected.companies.filter((s) => s.momentum === "accelerating")
                       .length,
                   )}
                 />
                 <Stat
                   label="Invested"
                   value={String(
-                    selected.startups.filter((s) => s.verdict === "invested")
+                    selected.companies.filter((s) => s.verdict === "invested")
                       .length,
                   )}
                 />
               </div>
 
               <div className="mt-5 text-[10px] uppercase tracking-wider text-ink-faint">
-                Startups
+                Companies
               </div>
               <div className="mt-2 space-y-2 overflow-y-auto flex-1">
-                {selected.startups.map((s) => (
+                {selected.companies.map((s) => (
                   <Link
                     key={s.id}
                     href={`/startups/${s.id}`}
@@ -298,16 +425,20 @@ export default function MarketMapsPage() {
                       <div className="font-medium text-ink group-hover:underline truncate">
                         {s.name}
                       </div>
-                      <span className="text-[11px] text-ink-faint shrink-0">
-                        {relativeTime(s.last_touch_at)}
-                      </span>
+                      {s.last_touch_at && (
+                        <span className="text-[11px] text-ink-faint shrink-0">
+                          {relativeTime(s.last_touch_at)}
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xs text-ink-muted mt-0.5 truncate">
-                      {s.one_liner}
-                    </div>
+                    {s.one_liner && (
+                      <div className="text-xs text-ink-muted mt-0.5 truncate">
+                        {s.one_liner}
+                      </div>
+                    )}
                     <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                      <MomentumBadge momentum={s.momentum} />
-                      <VerdictBadge verdict={s.verdict} />
+                      {s.momentum && <MomentumBadge momentum={s.momentum} />}
+                      {s.verdict && <VerdictBadge verdict={s.verdict} />}
                     </div>
                   </Link>
                 ))}
@@ -321,14 +452,14 @@ export default function MarketMapsPage() {
         </div>
       </div>
 
-      {/* Hint */}
+      {/* Info banner */}
       <div className="card-subtle p-4 flex items-start gap-3 text-sm">
         <Info size={16} className="text-ink-muted mt-0.5 shrink-0" />
         <div className="text-ink-muted">
-          <span className="text-ink font-medium">Heads up.</span> The map
-          currently lays out clusters by sector. Once the Neo4j backend is
-          wired up, positions will come from interaction-graph embeddings so
-          edges reflect actual thematic overlap, not just shared labels.
+          <span className="text-ink font-medium">Real-time clustering.</span> This
+          market map is generated from company embeddings using K-means or HDBSCAN
+          algorithms. Cluster names are generated by LLM analysis of company
+          characteristics. Click "Regenerate" to recompute clusters.
         </div>
       </div>
     </div>
@@ -345,3 +476,5 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+// Made with Bob

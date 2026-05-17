@@ -30,6 +30,13 @@ Data Sources → Ingestion Layer → LLM Processing → Hybrid Storage → FastA
   - `meta-llama/llama-3-3-70b-instruct` — complex deal intelligence extraction
   - `ibm/granite-4-h-small` — lightweight interaction relevance filtering
   - `ibm/granite-embedding-278m-multilingual` — multilingual semantic embeddings (768-dim)
+- **RAG AI Agent**: Intelligent chatbot with multi-modal capabilities
+  - Query Neo4j knowledge graph and PostgreSQL database for context
+  - Process PDFs and images (OCR + vision analysis)
+  - Web scraping for external data enrichment
+  - Conversation memory with isolated chat histories
+  - Source citation and reference tracking
+  - Streaming responses for real-time interaction
 - **Hybrid Database Architecture**:
   - Neo4j for relationship graphs and entity connections
   - PostgreSQL with pgvector for embeddings, transcripts, and analytics
@@ -282,14 +289,12 @@ python -m src.llm.extraction_engine
   ```
 - `POST /similarity/compute-all` - Compute similarities for all companies
 
+### Clustering Operations
+- `GET /market-map` - Get complete market map with all clusters and companies
+- `GET /market-map/cluster/{cluster_id}` - Get detailed cluster information
+
 ### Geocoding
 - `GET /geocode?location=Amsterdam,%20Netherlands` - Geocode a location
-
-### Clustering Operations (Planned)
-- `POST /clustering/compute` - Compute market map clusters
-- `POST /clustering/name-clusters` - Generate LLM names for clusters
-- `GET /market-map` - Get complete market map with all clusters
-- `GET /market-map/cluster/{cluster_id}` - Get detailed cluster information
 
 ### Query Endpoints (Planned)
 - `GET /companies/{company_id}` - Get company details
@@ -350,22 +355,34 @@ NEO4J_PASSWORD=vcpassword
   - [x] Automatic optimal cluster detection
   - [x] LLM-powered cluster naming
   - [x] Database schema (PostgreSQL + Neo4j)
-- [x] FastAPI endpoints (health, pipeline, similarity, geocoding)
+  - [x] API endpoints (GET /market-map, GET /market-map/cluster/{id})
+  - [x] Frontend integration with real clustering data
+- [x] FastAPI endpoints (health, pipeline, similarity, geocoding, clustering)
 - [x] Pipeline smoke test (`test_pipeline.py`)
 
 ### 🚧 In Progress
 - [ ] Frontend dashboard (Next.js 15 + Clerk auth)
   - [x] Basic UI components
   - [x] Authentication flow
+  - [x] Market map visualization (connected to real data)
   - [ ] Dashboard views
   - [ ] Company detail pages
   - [ ] Search and filtering
 
 ### 📅 Planned
-- [ ] Clustering API endpoints integration
-- [ ] Market map visualization (frontend)
+- [ ] Clustering compute endpoints (POST /clustering/compute, POST /clustering/name-clusters)
 - [ ] Query endpoints (GET companies, interactions, etc.)
-- [ ] RAG chatbot for deal intelligence
+- [ ] RAG AI Agent for deal intelligence
+  - [ ] Vector search service for knowledge retrieval
+  - [ ] PDF processing with text extraction
+  - [ ] Image processing with OCR and vision analysis
+  - [ ] Web scraping service for external data enrichment
+  - [ ] RAG query engine combining Neo4j and PostgreSQL context
+  - [ ] Conversation memory and history management
+  - [ ] Chatbot API endpoint with streaming responses
+  - [ ] File upload handling in backend
+  - [ ] Frontend chatbot integration
+  - [ ] Source citation and reference tracking
 - [ ] Company evolution tracking over time
 - [ ] Advanced analytics and insights
 - [ ] Webhook integrations for real-time updates
@@ -412,7 +429,11 @@ MIT License - See LICENSE file for details
 
 ### Documentation
 - [Implementation Plan](IMPLEMENTATION_PLAN.md) - Detailed implementation roadmap
+- [RAG AI Agent Implementation](RAG_AI_AGENT_IMPLEMENTATION.md) - Complete RAG system architecture and implementation guide
+- [Security Audit](SECURITY_AUDIT.md) - Comprehensive security analysis and recommendations
 - [Market Map Clustering Plan](MARKET_MAP_CLUSTERING_PLAN.md) - Clustering feature specification
+- [System Integration Map](SYSTEM_INTEGRATION_MAP.md) - Complete architecture and data flow
+- [Clustering Usage Guide](CLUSTERING_USAGE_GUIDE.md) - Step-by-step clustering tutorial
 - [Data Formats](data-forms.md) - Data source format specifications
 - [Extraction Output Format](extraction_output_format.json) - LLM output schema
 - [Knowledge Graph Pipeline](knowledge_graph_pipeline.md) - Pipeline architecture

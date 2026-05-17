@@ -201,44 +201,85 @@ class ExtractionEngine:
         
         return prompt
     
-    # Enum sets used to detect silent coercions by the Pydantic validators.
-    _VALID_INTERACTION_TYPES = {
-        "intro_meeting", "deep_dive", "demo", "reference_call",
-        "email", "slack_message", "memo", "ic_review", "other",
-    }
-    _VALID_METRIC_LABELS = {
-        "ARR", "MRR", "customers", "burn", "runway",
-        "growth_rate", "margin", "headcount", "other",
-    }
-
     def _audit_enum_drift(self, response: Dict[str, Any]) -> List[str]:
-        """Compare raw LLM output against allowed enums to surface coercions.
+        """Compare raw LLM output against canonical+synonym universes.
 
-        The schema's `mode='before'` validators silently rewrite invalid enum
-        values (e.g. 'term_sheet_negotiation' -> 'other'). That keeps the
-        pipeline alive but loses the original intent. We log a warning so the
-        warning appears in extraction_meta and downstream consumers can see
-        the LLM said something we couldn't represent.
+        The schema's `mode='before'` validators try a synonym match first
+        ("zoom" -> "video", "amazing" -> "positive"). When even synonym
+        matching fails, the value is coerced to the field's default and the
+        LLM's intent is lost. We log only those *real* misses so the
+        warnings list stays useful (synonym-resolved values are silent).
         """
+        from src.llm.schemas import (
+            _resolve_enum,
+            STAGE_SYNONYMS,
+            MOMENTUM_SYNONYMS,
+            PIPELINE_STAGE_SYNONYMS,
+            VERDICT_SYNONYMS,
+            ROLE_SYNONYMS,
+            SENTIMENT_SYNONYMS,
+            CHANNEL_SYNONYMS,
+            INTERACTION_TYPE_SYNONYMS,
+            METRIC_LABEL_SYNONYMS,
+            SOURCE_TYPE_SYNONYMS,
+        )
+
         warnings: List[str] = []
-        for interaction in response.get("interactions", []) or []:
+        _SENTINEL = object()
+
+        def _check(raw: Any, synonyms: dict, label: str, context: str = "") -> None:
+            """Record a warning iff the raw value can't be mapped to any canonical."""
+            if not isinstance(raw, str) or not raw.strip():
+                return
+            resolved = _resolve_enum(raw, synonyms, _SENTINEL)
+            if resolved is _SENTINEL:
+                # `_SENTINEL` came back, meaning no canonical OR synonym matched.
+                where = f" ({context})" if context else ""
+                warnings.append(
+                    f"LLM emitted {label}='{raw}'{where} — no synonym matched; coerced to default"
+                )
+
+        # Company-level enums
+        company = response.get("company") or {}
+        if isinstance(company, dict):
+            _check(company.get("stage"), STAGE_SYNONYMS, "company.stage")
+            _check(company.get("deal_momentum"), MOMENTUM_SYNONYMS, "company.deal_momentum")
+            src = company.get("source")
+            if isinstance(src, dict):
+                for t in src.get("types") or []:
+                    _check(t, SOURCE_TYPE_SYNONYMS, "company.source.types[]")
+
+        # Deal status
+        ds = response.get("deal_status") or {}
+        if isinstance(ds, dict):
+            _check(ds.get("pipeline_stage"), PIPELINE_STAGE_SYNONYMS, "deal_status.pipeline_stage")
+
+        # Contacts
+        for c in response.get("contacts") or []:
+            if isinstance(c, dict):
+                _check(c.get("role"), ROLE_SYNONYMS, "contacts[].role",
+                       context=c.get("name") or "?")
+
+        # Interactions + nested metrics
+        for interaction in response.get("interactions") or []:
             if not isinstance(interaction, dict):
                 continue
-            raw_type = interaction.get("type")
             iid = interaction.get("id", "<no id>")
-            if isinstance(raw_type, str) and raw_type not in self._VALID_INTERACTION_TYPES:
-                warnings.append(
-                    f"Interaction {iid} type '{raw_type}' is not in the allowed enum — "
-                    f"coerced to 'other'"
-                )
+            _check(interaction.get("type"), INTERACTION_TYPE_SYNONYMS, "interaction.type", context=iid)
+            _check(interaction.get("channel"), CHANNEL_SYNONYMS, "interaction.channel", context=iid)
+            _check(interaction.get("sentiment"), SENTIMENT_SYNONYMS, "interaction.sentiment", context=iid)
+            src = interaction.get("source")
+            if isinstance(src, dict):
+                _check(src.get("type"), SOURCE_TYPE_SYNONYMS, "interaction.source.type", context=iid)
             for m in (interaction.get("what_happened") or {}).get("metrics_mentioned", []) or []:
                 if isinstance(m, dict):
-                    raw_label = m.get("label")
-                    if isinstance(raw_label, str) and raw_label not in self._VALID_METRIC_LABELS:
-                        warnings.append(
-                            f"Interaction {iid} metric label '{raw_label}' is not in the "
-                            f"allowed enum — coerced to 'other'"
-                        )
+                    _check(m.get("label"), METRIC_LABEL_SYNONYMS, "metric.label", context=iid)
+
+        # Decision record
+        dr = response.get("decision_record") or {}
+        if isinstance(dr, dict):
+            _check(dr.get("verdict"), VERDICT_SYNONYMS, "decision_record.verdict")
+
         return warnings
 
     def to_dict(self, extraction: 'ExtractionOutput') -> Dict[str, Any]:

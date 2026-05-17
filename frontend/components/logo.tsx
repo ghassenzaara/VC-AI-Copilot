@@ -8,7 +8,7 @@ export function Logo({ className }: { className?: string }) {
         <div className="absolute h-2 w-2 rounded-full bg-white right-1.5 bottom-1.5" />
       </div>
       <span className="text-[15px] font-semibold tracking-tight text-ink">
-        Yellow<span className="text-ink-muted">.ai</span>
+        Vista
       </span>
     </div>
   );

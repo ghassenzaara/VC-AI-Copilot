@@ -46,11 +46,11 @@ function formatBytes(b: number): string {
 const SUGGESTIONS = [
   {
     title: "Summarize my pipeline",
-    subtitle: "Top 5 deals this week, grouped by momentum",
+    subtitle: "Top deals this week, grouped by momentum",
   },
   {
     title: "Find similar startups",
-    subtitle: "Companies like NeuralEdge in the AI infra cluster",
+    subtitle: "Companies that cluster together in the market map",
   },
   {
     title: "Surface risks",
@@ -58,34 +58,25 @@ const SUGGESTIONS = [
   },
   {
     title: "Draft a memo",
-    subtitle: "One-page IC memo for FleetMind based on calls",
+    subtitle: "One-page IC memo for the deal you pick",
   },
 ];
 
-// Tiny fake assistant — pattern-matches a few keywords just so the UI feels alive.
-function fakeReply(prompt: string): string {
-  const p = prompt.toLowerCase();
-  if (p.includes("pipeline") || p.includes("deals")) {
-    return "Here is a quick read on your pipeline:\n\n• NeuralEdge — Decision · Invested · €3M check signed\n• FleetMind — IC review · Accelerating · diligence wrapping this week\n• Luminary Health — Diligence · Accelerating · reference calls pending\n• SynthLab — First call · Accelerating · founder asked for a follow-up\n• GraphWise — Diligence · Stable · memo shared internally\n\nWant me to dig into any of these?";
-  }
-  if (p.includes("similar") || p.includes("cluster") || p.includes("market")) {
-    return "Within the AI Infrastructure cluster, the closest neighbours to NeuralEdge are SynthLab (synthetic data) and GraphWise (knowledge-graph copilots). Different wedges, but they share the European B2B GTM motion and the same buyer (Heads of ML / Data Platform).";
-  }
-  if (p.includes("risk") || p.includes("concern")) {
-    return "Two flagged risks worth a closer look:\n\n1. NeuralEdge — dependence on hyperscaler spot pricing (raised by Ahmed in the IC debate).\n2. FleetMind — single-region customer concentration; 60% of revenue from DACH logistics.\n\nDo you want me to draft a follow-up question for either founder?";
-  }
-  if (p.includes("memo") || p.includes("draft")) {
-    return "Sure — drafting a one-pager for FleetMind based on the last three Granola transcripts, the Slack thread in #investments, and Tomas' email. Give me a moment and I will route it to your inbox.";
-  }
-  return "Connect me to a backend and I will turn your interactions across Granola, Affinity, Slack and Gmail into an answer. For now I am running on mock data — try one of the suggestions on the left to see how the chat behaves.";
+// The chat backend is not wired yet. Every prompt returns the same explanation
+// so it's transparent to the user that this surface is awaiting integration.
+function notWiredReply(): string {
+  return (
+    "Chat isn't connected to your data yet.\n\n" +
+    "Once we wire it up, this is where you'll be able to ask questions across " +
+    "your interactions (Granola, Affinity, Slack, Gmail), pull summaries from " +
+    "the extraction pipeline, and surface deals that share clusters in the " +
+    "market map.\n\n" +
+    "For now, head to /startups, /dashboard or /market-maps to see real data."
+  );
 }
 
-const HISTORY = [
-  { id: "h1", title: "Pipeline review · Dec 22", time: "2d ago" },
-  { id: "h2", title: "NeuralEdge IC prep", time: "1w ago" },
-  { id: "h3", title: "Climate cluster scan", time: "2w ago" },
-  { id: "h4", title: "Pricing benchmarks – AI infra", time: "3w ago" },
-];
+// No mock history. Real history will be persisted server-side later.
+const HISTORY: { id: string; title: string; time: string }[] = [];
 
 export default function ChatbotPage() {
   const { user } = useUser();
@@ -165,9 +156,7 @@ export default function ChatbotPage() {
     setAttachments([]);
     setPending(true);
 
-    const replyText = attachments.length
-      ? `Got ${attachments.length} file${attachments.length > 1 ? "s" : ""} (${attachments.map((a) => a.name).join(", ")}). Once the backend is wired up I'll OCR/parse them and answer based on their contents.${trimmed ? "\n\n" + fakeReply(trimmed) : ""}`
-      : fakeReply(trimmed);
+    const replyText = notWiredReply();
 
     window.setTimeout(() => {
       const reply: ChatMessage = {
@@ -271,7 +260,7 @@ export default function ChatbotPage() {
                 <div className="text-center mb-8">
                   <div className="inline-flex items-center gap-1.5 pill bg-bg-card border border-line text-ink-muted">
                     <Sparkles size={12} className="text-ink-muted" />
-                    Yellow Copilot
+                    Vista Copilot
                   </div>
                   <h1 className="mt-4 text-3xl md:text-4xl font-semibold tracking-tight text-ink">
                     {firstName ? `Hey ${firstName},` : "Hey there,"} what should
@@ -323,7 +312,7 @@ export default function ChatbotPage() {
               <div className="px-5 py-3 border-b border-line flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles size={14} className="text-ink-muted" />
-                  <div className="text-sm font-medium">Yellow Copilot</div>
+                  <div className="text-sm font-medium">Vista Copilot</div>
                 </div>
                 <button onClick={startFresh} className="btn-ghost">
                   <Plus size={14} />

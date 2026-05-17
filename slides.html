@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vista — IBM BOB Hackathon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.css" />
+<style>
+  :root {
+    --bg-base: #F4F4F2;
+    --bg-card: #FFFFFF;
+    --bg-subtle: #FAFAF8;
+    --ink: #0A0A0A;
+    --ink-muted: #6B7280;
+    --ink-faint: #9CA3AF;
+    --line: #E7E7E2;
+    --line-subtle: #EFEFEA;
+    --accent-green: #86EFAC;
+    --accent-greenInk: #166534;
+    --accent-red: #FCA5A5;
+    --accent-redInk: #991B1B;
+    --accent-amber: #FCD34D;
+    --accent-amberInk: #92400E;
+    --accent-blue: #BFDBFE;
+    --accent-blueInk: #1E3A8A;
+  }
+
+  html, body { background: var(--bg-base); }
+  .reveal { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; color: var(--ink); font-weight: 400; }
+  .reveal .slides { text-align: left; }
+  .reveal .slides > section { padding: 48px 56px; }
+
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 { color: var(--ink); font-weight: 600; letter-spacing: -0.02em; text-transform: none; margin: 0; }
+  .reveal h1 { font-size: 3.2rem; line-height: 1.05; }
+  .reveal h2 { font-size: 2.2rem; line-height: 1.1; margin-bottom: 18px; }
+  .reveal h3 { font-size: 1.4rem; line-height: 1.2; color: var(--ink-muted); font-weight: 500; }
+  .reveal p { font-size: 1.15rem; line-height: 1.55; color: var(--ink); margin: 12px 0; }
+  .reveal strong { color: var(--ink); font-weight: 600; }
+  .reveal em { font-style: italic; color: var(--ink-muted); }
+  .reveal a { color: var(--accent-blueInk); text-decoration: none; }
+
+  .overline { font-size: 0.72rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; margin-bottom: 6px; }
+
+  .reveal ul, .reveal ol { font-size: 1.1rem; line-height: 1.55; color: var(--ink); margin-left: 24px; }
+  .reveal li { margin: 8px 0; }
+  .reveal li::marker { color: var(--ink-faint); }
+
+  .card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 20px; padding: 28px 32px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .card-subtle { background: var(--bg-subtle); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 0.78rem; font-weight: 500; }
+  .pill-green { background: rgba(134, 239, 172, 0.5); color: var(--accent-greenInk); }
+  .pill-blue { background: rgba(191, 219, 254, 0.5); color: var(--accent-blueInk); }
+  .pill-amber { background: rgba(252, 211, 77, 0.4); color: var(--accent-amberInk); }
+  .pill-red { background: rgba(252, 165, 165, 0.4); color: var(--accent-redInk); }
+  .pill-neutral { background: var(--bg-subtle); border: 1px solid var(--line); color: var(--ink-muted); }
+
+  .reveal table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 0.95rem; background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .reveal th { background: var(--bg-subtle); color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; font-weight: 500; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+  .reveal td { padding: 12px 16px; border-bottom: 1px solid var(--line-subtle); color: var(--ink); vertical-align: top; }
+  .reveal tr:last-child td { border-bottom: none; }
+
+  .reveal pre { background: var(--bg-subtle); border: 1px solid var(--line); border-radius: 14px; padding: 20px 24px; font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.78rem; line-height: 1.45; color: var(--ink); box-shadow: none; overflow: auto; }
+  .reveal pre code { background: transparent; padding: 0; color: var(--ink); }
+  .reveal code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: var(--bg-subtle); border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; color: var(--ink); }
+
+  .reveal blockquote { background: var(--bg-card); border: 1px solid var(--line); border-left: 4px solid var(--ink); border-radius: 14px; padding: 16px 22px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); font-style: normal; font-size: 1.1rem; color: var(--ink); }
+
+  .reveal hr { border: none; border-top: 1px solid var(--line); margin: 24px 0; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  .kpi { background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .kpi .label { font-size: 0.7rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+  .kpi .value { font-size: 1.8rem; font-weight: 600; color: var(--ink); margin-top: 4px; letter-spacing: -0.02em; }
+  .kpi .delta { font-size: 0.8rem; color: var(--ink-muted); margin-top: 2px; }
+
+  .brand { display: inline-flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 44px; height: 44px; border-radius: 12px; background: var(--ink); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.4rem; letter-spacing: -0.02em; }
+  .brand-name { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+
+  .title-slide { display: flex !important; flex-direction: column; justify-content: space-between; height: 100%; padding: 64px 72px !important; background:
+    radial-gradient(circle at 20% 10%, rgba(134, 239, 172, 0.25), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(191, 219, 254, 0.25), transparent 40%),
+    var(--bg-base);
+  }
+  .title-slide h1 { font-size: 5rem; line-height: 1; margin: 0; }
+  .title-slide h3 { font-size: 1.5rem; color: var(--ink-muted); margin-top: 16px; font-weight: 400; }
+
+  .closing { display: flex !important; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; }
+  .closing h1 { font-size: 4rem; }
+
+  .reveal .progress { color: var(--ink); height: 3px; }
+  .reveal .slide-number { background: transparent; color: var(--ink-faint); font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 500; right: 24px; bottom: 18px; }
+
+  .footer-brand { position: absolute; bottom: 20px; left: 56px; font-size: 0.75rem; color: var(--ink-faint); letter-spacing: 0.04em; font-weight: 500; }
+
+  .hl-ink { background: var(--ink); color: #fff; padding: 1px 8px; border-radius: 6px; font-weight: 500; }
+  .hl-green { background: rgba(134, 239, 172, 0.5); color: var(--accent-greenInk); padding: 1px 8px; border-radius: 6px; font-weight: 500; }
+  .hl-amber { background: rgba(252, 211, 77, 0.4); color: var(--accent-amberInk); padding: 1px 8px; border-radius: 6px; font-weight: 500; }
+
+  .chain { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .chain-step { background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 20px; font-size: 1.1rem; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .chain-arrow { color: var(--ink-faint); font-size: 1.5rem; margin-left: 28px; line-height: 0.8; }
+
+  .lead { font-size: 1.55rem; line-height: 1.35; color: var(--ink); font-weight: 400; max-width: 920px; }
+
+  .ibm-callout { background: var(--ink); color: #fff; border-radius: 20px; padding: 32px 40px; }
+  .ibm-callout .overline { color: rgba(255,255,255,0.6); }
+  .ibm-callout p { color: rgba(255,255,255,0.92); }
+  .ibm-callout strong { color: #fff; }
+
+  /* Chat-mockup style for the RAG slide */
+  .chat-mock { background: var(--bg-card); border: 1px solid var(--line); border-radius: 20px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .chat-user { background: var(--bg-subtle); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; font-size: 0.95rem; margin-bottom: 10px; max-width: 80%; }
+  .chat-assistant { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 0.95rem; max-width: 92%; }
+  .chat-sources { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .chat-source { font-size: 0.7rem; padding: 3px 8px; border-radius: 8px; background: var(--bg-subtle); border: 1px solid var(--line); color: var(--ink-muted); }
+
+  /* Value-pillar card (taller, for 3-pillar slide) */
+  .pillar { background: var(--bg-card); border: 1px solid var(--line); border-radius: 20px; padding: 24px 26px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 10px; }
+  .pillar-num { width: 36px; height: 36px; border-radius: 10px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; }
+  .pillar h4 { font-size: 1.15rem; font-weight: 600; margin: 0; }
+  .pillar p { font-size: 0.95rem; color: var(--ink-muted); margin: 0; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- 1. TITLE -->
+    <section class="title-slide">
+      <div>
+        <div class="brand">
+          <div class="brand-mark">V</div>
+          <div class="brand-name">Vista</div>
+        </div>
+      </div>
+      <div>
+        <div class="overline">B2B intelligence for venture capital</div>
+        <h1>Where promising ideas<br/>meet the right capital.</h1>
+        <h3>So no founder gets forgotten.</h3>
+      </div>
+      <div style="display:flex; justify-content: space-between; align-items: flex-end; font-size: 0.9rem; color: var(--ink-muted);">
+        <div>
+          <div class="overline" style="margin-bottom: 2px;">Submission</div>
+          <div style="color: var(--ink); font-weight: 500;">IBM BOB Hackathon · 2026</div>
+        </div>
+        <div style="text-align: right;">
+          <span class="pill pill-blue">Built with IBM BOB</span>
+          &nbsp;
+          <span class="pill pill-green">Powered by IBM WatsonX</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. The obvious problem -->
+    <section>
+      <div class="overline">The problem</div>
+      <h2>The obvious problem<br/>everyone solves</h2>
+      <p>Every hackathon team this year is building the same thing:</p>
+      <blockquote>
+        <strong>A coding assistant.</strong><br/>
+        Help developers ship faster. Help them debug faster. Help them write boilerplate faster.
+      </blockquote>
+      <p class="lead" style="margin-top: 28px;">
+        We knew that. We chose to dig deeper.<br/>
+        <span class="hl-ink">What if "shipping faster" isn't the bottleneck anymore?</span>
+      </p>
+      <div class="footer-brand">Vista · The real bottleneck (1/2)</div>
+    </section>
+
+    <!-- 3. The real bottleneck -->
+    <section>
+      <div class="overline">The problem · continued</div>
+      <h2>The real bottleneck</h2>
+      <p class="lead">
+        With AI coding assistants, ideas ship in <strong>days</strong>, not months.<br/>
+        What's missing is <span class="hl-amber">the investment that lets those ideas survive.</span>
+      </p>
+      <div style="margin-top: 32px;">
+        <p>Most promising startups never see the light of day —</p>
+        <ul>
+          <li>not because the idea was bad,</li>
+          <li>not because the team couldn't build it,</li>
+          <li>but because <strong>no investor found them in time to believe in them.</strong></li>
+        </ul>
+      </div>
+      <div class="footer-brand">Vista · The real bottleneck (2/2)</div>
+    </section>
+
+    <!-- 4. Why investors miss good ideas -->
+    <section>
+      <div class="overline">Why it happens</div>
+      <h2>VCs are drowning in deal flow</h2>
+      <p>They already use the right tools — they just don't talk to each other.</p>
+      <div class="four-col" style="margin-top: 24px;">
+        <div class="card" style="padding: 18px 20px;">
+          <div style="width:40px; height:40px; border-radius:10px; background:#FDE68A; color:#7C2D12; display:flex; align-items:center; justify-content:center; font-weight:600;">G</div>
+          <div style="margin-top:10px; font-weight:600;">Granola</div>
+          <div style="font-size:0.85rem; color: var(--ink-muted); margin-top:4px;">Call transcripts</div>
+        </div>
+        <div class="card" style="padding: 18px 20px;">
+          <div style="width:40px; height:40px; border-radius:10px; background:#DBEAFE; color:#1E3A8A; display:flex; align-items:center; justify-content:center; font-weight:600;">A</div>
+          <div style="margin-top:10px; font-weight:600;">Affinity</div>
+          <div style="font-size:0.85rem; color: var(--ink-muted); margin-top:4px;">CRM pipeline</div>
+        </div>
+        <div class="card" style="padding: 18px 20px;">
+          <div style="width:40px; height:40px; border-radius:10px; background:#FBCFE8; color:#831843; display:flex; align-items:center; justify-content:center; font-weight:600;">S</div>
+          <div style="margin-top:10px; font-weight:600;">Slack</div>
+          <div style="font-size:0.85rem; color: var(--ink-muted); margin-top:4px;">Team debates</div>
+        </div>
+        <div class="card" style="padding: 18px 20px;">
+          <div style="width:40px; height:40px; border-radius:10px; background:#FECACA; color:#991B1B; display:flex; align-items:center; justify-content:center; font-weight:600;">M</div>
+          <div style="margin-top:10px; font-weight:600;">Gmail</div>
+          <div style="font-size:0.85rem; color: var(--ink-muted); margin-top:4px;">Founder threads</div>
+        </div>
+      </div>
+      <p style="margin-top: 28px;">
+        Partners spend their day <span class="hl-amber">jumping between tools</span> instead of evaluating companies.<br/>
+        Promising startups slip through the cracks. Investment doesn't reach them. The idea dies.
+      </p>
+      <div class="footer-brand">Vista · Tool sprawl</div>
+    </section>
+
+    <!-- 5. Chain reaction -->
+    <section>
+      <div class="overline">The chain reaction</div>
+      <h2>How tool sprawl breaks the founder economy</h2>
+      <div class="chain" style="margin-top: 24px;">
+        <div class="chain-step">More tool sprawl for VCs</div>
+        <div class="chain-arrow">↓</div>
+        <div class="chain-step">Fewer ideas evaluated properly</div>
+        <div class="chain-arrow">↓</div>
+        <div class="chain-step">Fewer startups funded</div>
+        <div class="chain-arrow">↓</div>
+        <div class="chain-step">Developers stop building</div>
+        <div class="chain-arrow">↓</div>
+        <div class="chain-step" style="background: var(--ink); color: #fff; border-color: var(--ink);">Money becomes the blocker again</div>
+      </div>
+      <p style="margin-top: 28px; font-size: 1.2rem;">
+        <strong>Reverse it, and AI coding tools actually matter.</strong>
+      </p>
+      <div class="footer-brand">Vista · The chain reaction</div>
+    </section>
+
+    <!-- 6. Meet Vista -->
+    <section>
+      <div class="overline">The solution</div>
+      <h2>Meet Vista</h2>
+      <p class="lead">
+        <strong>A B2B intelligence platform built for venture capital firms.</strong>
+      </p>
+      <div class="card" style="margin-top: 24px;">
+        <p style="margin: 0;">
+          Vista quietly listens to every signal your firm already collects —
+          calls, emails, CRM notes, team debates —
+          and turns them into a <span class="hl-green">single, living picture</span>
+          of every founder and company in your pipeline.
+        </p>
+      </div>
+      <div class="three-col" style="margin-top: 24px;">
+        <div class="kpi"><div class="label">No promising startup</div><div class="value">forgotten</div></div>
+        <div class="kpi"><div class="label">Every founder</div><div class="value">a fair shot</div></div>
+        <div class="kpi"><div class="label">Developers</div><div class="value">keep building</div></div>
+      </div>
+      <div class="footer-brand">Vista · The solution</div>
+    </section>
+
+    <!-- 7. What Vista does — 3 pillars (business value) -->
+    <section>
+      <div class="overline">Value to your firm</div>
+      <h2>Three things Vista does for VCs</h2>
+      <div class="three-col" style="margin-top: 24px;">
+        <div class="pillar">
+          <div class="pillar-num">1</div>
+          <h4>Unifies what you already have</h4>
+          <p>Granola, Affinity, Slack and Gmail come together in one workspace. No switching tabs, no copy-pasting between platforms.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">2</div>
+          <h4>Turns noise into signal</h4>
+          <p>Hours of meeting transcripts, threads and notes become a structured profile of every company — team, traction, sector, momentum.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">3</div>
+          <h4>Surfaces what you'd miss</h4>
+          <p>Re-cluster your pipeline on demand, get reminded of stale-but-promising deals, and chat with your portfolio in plain English.</p>
+        </div>
+      </div>
+      <div class="footer-brand">Vista · What it does</div>
+    </section>
+
+    <!-- 8. Unified dashboard -->
+    <section>
+      <div class="overline">Feature · Dashboard</div>
+      <h2>Your whole pipeline at a glance</h2>
+      <div class="two-col" style="margin-top: 24px; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: start;">
+        <div>
+          <p>
+            One screen tells you how the firm is doing this quarter:
+            how many deals are open, how many are accelerating, who needs a follow-up,
+            and which conversations have the most momentum right now.
+          </p>
+          <ul>
+            <li><strong>Pipeline health</strong> — funnel, KPIs, weekly trend</li>
+            <li><strong>Momentum split</strong> — what's heating up, what's cooling</li>
+            <li><strong>Top deals</strong> — sorted by signal, not by date</li>
+            <li><strong>Recent activity</strong> — every interaction across every channel</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="overline">This quarter</div>
+          <div class="two-col" style="margin-top: 10px;">
+            <div class="kpi"><div class="label">Open deals</div><div class="value">184</div><div class="delta" style="color: var(--accent-greenInk);">+12 this week</div></div>
+            <div class="kpi"><div class="label">Accelerating</div><div class="value">42</div><div class="delta" style="color: var(--accent-greenInk);">+8</div></div>
+            <div class="kpi"><div class="label">Needs follow-up</div><div class="value">17</div><div class="delta" style="color: var(--accent-amberInk);">attention</div></div>
+            <div class="kpi"><div class="label">Invested</div><div class="value">6</div><div class="delta">YTD</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-brand">Vista · Dashboard</div>
+    </section>
+
+    <!-- 9. Market Maps -->
+    <section>
+      <div class="overline">Feature · Market Maps</div>
+      <h2>See your portfolio by <em>problem</em>, not by buzzword</h2>
+      <p>
+        Most VC tools group startups by <em>technology</em> — "AI", "agents", "GenAI".
+        Useless, because every founder uses AI today.
+      </p>
+      <p>
+        Vista groups them by the <span class="hl-green">problem they solve</span> —
+        "construction project management", "legal contract review", "healthcare diagnostics".
+        Clusters update on demand as your portfolio grows, and the map redraws in seconds.
+      </p>
+      <div class="three-col" style="margin-top: 22px;">
+        <div class="card-subtle">
+          <div class="overline">Interactive</div>
+          <div style="font-weight: 600; margin-top: 4px;">Click any cluster</div>
+          <div style="font-size: 0.9rem; color: var(--ink-muted); margin-top: 4px;">Inspect every company inside — sectors, stages, momentum.</div>
+        </div>
+        <div class="card-subtle">
+          <div class="overline">On-demand</div>
+          <div style="font-weight: 600; margin-top: 4px;">One-click regenerate</div>
+          <div style="font-size: 0.9rem; color: var(--ink-muted); margin-top: 4px;">Re-cluster the whole portfolio without losing your place.</div>
+        </div>
+        <div class="card-subtle">
+          <div class="overline">Smart names</div>
+          <div style="font-weight: 600; margin-top: 4px;">Domain-first labels</div>
+          <div style="font-size: 0.9rem; color: var(--ink-muted); margin-top: 4px;">Cluster names describe what the companies <em>do</em>, not what they're built with.</div>
+        </div>
+      </div>
+      <div class="footer-brand">Vista · Market Maps</div>
+    </section>
+
+    <!-- 10. Ask Vista anything (RAG) -->
+    <section>
+      <div class="overline">Feature · AI Assistant</div>
+      <h2>Ask Vista anything.</h2>
+      <p>
+        Your firm's portfolio, queryable in plain English. The assistant pulls from your
+        knowledge graph, your uploaded documents, and the open web — and <strong>cites every source</strong>.
+      </p>
+      <div class="two-col" style="margin-top: 22px; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+        <div>
+          <ul style="font-size: 1.02rem;">
+            <li><strong>Ask in plain English</strong> — "What AI startups did we meet last week?"</li>
+            <li><strong>Drop a pitch deck</strong> — Vista reads PDFs and images and uses them in answers</li>
+            <li><strong>Live web enrichment</strong> — pulls fresh news and funding announcements when needed</li>
+            <li><strong>Citations on every claim</strong> — click to jump back to the source</li>
+            <li><strong>Multiple chats, isolated context</strong> — each conversation has its own memory</li>
+            <li><strong>Suggested follow-ups</strong> — Vista nudges you to dig deeper</li>
+          </ul>
+        </div>
+        <div class="chat-mock">
+          <div class="overline">Chat · Acme Corp due diligence</div>
+          <div style="margin-top: 12px;">
+            <div class="chat-user" style="margin-left: auto;">What's the team's verdict on Acme Corp after last week's call?</div>
+            <div class="chat-assistant">
+              The team is leaning <strong>cautiously positive</strong>. Three partners flagged strong founder-market fit; one raised concerns about competitive moat. No final decision yet — next step is a follow-up on customer references.
+              <div class="chat-sources">
+                <span class="chat-source">💬 Slack #deals</span>
+                <span class="chat-source">🎤 Call · Sep 14</span>
+                <span class="chat-source">📄 Deck v2.pdf</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-brand">Vista · AI Assistant</div>
+    </section>
+
+    <!-- 11. Privacy & isolation -->
+    <section>
+      <div class="overline">Built for trust</div>
+      <h2>Your data stays your data</h2>
+      <p>
+        Every VC firm gets its own private workspace. Companies, conversations,
+        interactions, decisions — none of it ever leaves your tenant.
+      </p>
+      <div class="three-col" style="margin-top: 24px;">
+        <div class="card">
+          <div class="overline">Per-firm isolation</div>
+          <p style="font-size: 0.95rem; margin: 8px 0 0;">Two firms could use Vista at the same time on the same server and never see each other's data. Not by policy — by design.</p>
+        </div>
+        <div class="card">
+          <div class="overline">Zero shared workspace</div>
+          <p style="font-size: 0.95rem; margin: 8px 0 0;">No "team account" you accidentally share with the wrong fund. Each firm is its own world from day one.</p>
+        </div>
+        <div class="card">
+          <div class="overline">No data retention you didn't ask for</div>
+          <p style="font-size: 0.95rem; margin: 8px 0 0;">Delete a workspace, and the entire footprint — across every system — goes with it.</p>
+        </div>
+      </div>
+      <div class="footer-brand">Vista · Trust</div>
+    </section>
+
+    <!-- 12. How it all works (high-level) -->
+    <section>
+      <div class="overline">How it works</div>
+      <h2>Three layers, working together</h2>
+      <div class="three-col" style="margin-top: 24px;">
+        <div class="pillar">
+          <div class="pillar-num">1</div>
+          <h4>Connect</h4>
+          <p>Vista plugs into the tools your team already uses — Granola, Affinity, Slack, Gmail — through clean integrations you set up in clicks.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">2</div>
+          <h4>Understand</h4>
+          <p>An AI pipeline reads every interaction, filters noise, extracts what matters, and builds a knowledge graph of your firm's world.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">3</div>
+          <h4>Decide</h4>
+          <p>You get a dashboard, market maps, and an assistant that already knows your portfolio — ready to surface, summarize, and recommend.</p>
+        </div>
+      </div>
+      <div class="card-subtle" style="margin-top: 22px;">
+        <span class="pill pill-blue">Built with IBM BOB</span>
+        &nbsp;
+        <span class="pill pill-green">Powered by IBM WatsonX</span>
+        &nbsp;
+        <span class="pill pill-neutral">Next.js · FastAPI · PostgreSQL · Neo4j</span>
+      </div>
+      <div class="footer-brand">Vista · How it works</div>
+    </section>
+
+    <!-- 13. What's next -->
+    <section>
+      <div class="overline">Roadmap</div>
+      <h2>What's next</h2>
+      <div class="two-col" style="margin-top: 18px;">
+        <div class="card">
+          <div class="overline">Short term</div>
+          <ul style="font-size: 0.95rem; margin-top: 8px;">
+            <li>Real-time push from every data source (no more manual refreshes)</li>
+            <li>Daily auto-refresh of market maps — the portfolio updates while you sleep</li>
+            <li>Fully wired Slack &amp; Gmail sign-in</li>
+            <li>Weekly email digest: "deals you might be forgetting"</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="overline">Medium term</div>
+          <ul style="font-size: 0.95rem; margin-top: 8px;">
+            <li>Team workspaces — multiple partners per firm with roles</li>
+            <li>A founder-facing surface so they can correct how a VC sees them</li>
+            <li>Cross-firm benchmarks (privacy-preserving, opt-in)</li>
+            <li>Calendar-aware meeting prep — Vista briefs you 30 minutes before the call</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-brand">Vista · Roadmap</div>
+    </section>
+
+    <!-- 14. Why now -->
+    <section>
+      <div class="overline">The thesis</div>
+      <h2>Why Vista, why now</h2>
+      <div class="card" style="margin-top: 18px; padding: 36px 40px;">
+        <p class="lead">
+          AI made building cheap.<br/>
+          <span class="hl-amber">Capital allocation is now the bottleneck.</span>
+        </p>
+        <p style="margin-top: 18px;">
+          If every promising idea found its right investor in days instead of months,
+          we'd unlock a generation of founders who today give up before they start.
+        </p>
+      </div>
+      <p class="lead" style="margin-top: 28px;">
+        <strong>Vista is the connective tissue that closes that gap.</strong>
+      </p>
+      <div class="footer-brand">Vista · Thesis</div>
+    </section>
+
+    <!-- 15. Built with IBM BOB -->
+    <section>
+      <div class="overline">IBM BOB Hackathon</div>
+      <h2>Built with IBM BOB</h2>
+      <p>The Vista backend was bootstrapped end-to-end with <strong>IBM BOB</strong> across four working sessions:</p>
+      <div class="two-col" style="margin-top: 16px;">
+        <div class="card-subtle">
+          <div class="overline">Session 1 · Plan</div>
+          <p style="font-size: 0.95rem; margin: 6px 0 0;">Turned the architecture brief into a clear, step-by-step implementation plan covering data, AI stages, storage, and the API surface.</p>
+        </div>
+        <div class="card-subtle">
+          <div class="overline">Session 2 · Implement</div>
+          <p style="font-size: 0.95rem; margin: 6px 0 0;">Built the first complete version of the backend — every data connector, the AI processing pipeline, the storage layer, and the public API.</p>
+        </div>
+        <div class="card-subtle">
+          <div class="overline">Session 3 · Run</div>
+          <p style="font-size: 0.95rem; margin: 6px 0 0;">Stood the system up end-to-end and validated the full pipeline against realistic data.</p>
+        </div>
+        <div class="card-subtle">
+          <div class="overline">Session 4 · Review</div>
+          <p style="font-size: 0.95rem; margin: 6px 0 0;">Reviewed the codebase for security and clarity, then wrote and polished the documentation.</p>
+        </div>
+      </div>
+      <p style="margin-top: 18px; font-size: 1.1rem;">
+        <span class="hl-ink">BOB turned a single planning prompt into a working product in hours, not weeks.</span>
+      </p>
+      <div class="footer-brand">Vista · IBM BOB</div>
+    </section>
+
+    <!-- 16. Built on IBM WatsonX -->
+    <section>
+      <div class="ibm-callout">
+        <div class="overline">Powered by</div>
+        <h2 style="color:#fff; margin-top: 4px;">IBM WatsonX</h2>
+        <p style="margin-top: 14px; font-size: 1.15rem;">
+          Every piece of intelligence in Vista — filtering noise, extracting structured insights,
+          naming market clusters, answering chat questions — runs on <strong>IBM WatsonX</strong>.
+        </p>
+        <p style="margin-top: 10px; font-size: 1.05rem;">
+          A two-tier strategy keeps it fast and affordable at scale,
+          while delivering high-fidelity output where it matters most.
+        </p>
+      </div>
+      <div class="footer-brand">Vista · WatsonX</div>
+    </section>
+
+    <!-- 17. Thank you -->
+    <section class="closing">
+      <div class="brand" style="margin-bottom: 32px;">
+        <div class="brand-mark" style="width:64px; height:64px; font-size:2rem; border-radius:18px;">V</div>
+        <div class="brand-name" style="font-size: 2.4rem;">Vista</div>
+      </div>
+      <h1>Thank you.</h1>
+      <p class="lead" style="margin-top: 24px; text-align: center; color: var(--ink-muted);">
+        Where promising ideas meet the right capital.
+      </p>
+      <div style="margin-top: 40px;">
+        <span class="pill pill-blue">Built with IBM BOB</span>
+        &nbsp;
+        <span class="pill pill-green">Powered by IBM WatsonX</span>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'fade',
+    transitionSpeed: 'default',
+    controls: true,
+    progress: true,
+    center: false,
+    width: 1280,
+    height: 800,
+    margin: 0.04,
+  });
+</script>
+</body>
+</html>

@@ -25,10 +25,15 @@ python-dotenv==1.0.0
 httpx==0.26.0
 tenacity==8.2.3
 
+# Auth (Clerk JWT verification)
+pyjwt[crypto]==2.8.0
+
 # Clustering
-scikit-learn==1.3.2
-hdbscan==0.8.33
-numpy==1.24.3
+# Bumped for Python 3.12 wheel support (older pins forced sdist builds
+# that fail because distutils was removed from the stdlib in 3.12).
+scikit-learn>=1.5.2,<1.7
+hdbscan>=0.8.40,<0.9
+numpy>=1.26.4,<2.1
 
 # Testing
 pytest==7.4.4

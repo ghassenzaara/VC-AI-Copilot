@@ -34,7 +34,7 @@ export function StartupCard({ s }: { s: StartupSummary }) {
       <div className="mt-4 flex items-center gap-1.5 flex-wrap">
         <PipelinePill stage={s.pipeline_stage} />
         <MomentumBadge momentum={s.momentum} />
-        <Tag>{s.stage}</Tag>
+        {s.stage && <Tag>{s.stage}</Tag>}
       </div>
 
       <div className="mt-4 pt-4 border-t border-line flex items-center justify-between text-xs">
@@ -42,7 +42,7 @@ export function StartupCard({ s }: { s: StartupSummary }) {
           Owner <span className="text-ink">{s.owner}</span>
         </div>
         <div className="text-ink-faint">
-          Last touch · {relativeTime(s.last_touch_at)}
+          Last touch · {s.last_touch_at ? relativeTime(s.last_touch_at) : "—"}
         </div>
       </div>
     </Link>

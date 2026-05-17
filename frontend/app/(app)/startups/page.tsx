@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Search, LayoutGrid, List, ChevronDown } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Search, LayoutGrid, List, ChevronDown, Loader2 } from "lucide-react";
 import { StartupCard } from "@/components/startup-card";
 import { FilterPills } from "@/components/filter-pills";
 import {
@@ -11,16 +11,17 @@ import {
   VerdictBadge,
 } from "@/components/badges";
 import {
-  startups,
   ALL_MOMENTUMS,
   ALL_PIPELINE_STAGES,
   ALL_VERDICTS,
   ALL_STAGES,
-} from "@/lib/mock-data";
+} from "@/lib/constants";
+import { useApi } from "@/lib/use-api";
 import type {
   Momentum,
   PipelineStage,
   Stage,
+  StartupSummary,
   Verdict,
 } from "@/lib/types";
 import { cn, relativeTime } from "@/lib/utils";
@@ -31,43 +32,96 @@ type View = "grid" | "list";
 export default function StartupsPage() {
   const [view, setView] = useState<View>("grid");
   const [query, setQuery] = useState("");
-  const [pipelineFilter, setPipelineFilter] = useState<PipelineStage | "all">(
-    "all",
-  );
+  const [pipelineFilter, setPipelineFilter] = useState<PipelineStage | "all">("all");
   const [momentumFilter, setMomentumFilter] = useState<Momentum | "all">("all");
   const [verdictFilter, setVerdictFilter] = useState<Verdict | "all">("all");
   const [stageFilter, setStageFilter] = useState<Stage | "all">("all");
 
+  const api = useApi();
+  const [companies, setCompanies] = useState<StartupSummary[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!api.isReady) return;
+    let cancelled = false;
+    setLoading(true);
+    api
+      .fetchCompanies()
+      .then((rows) => {
+        if (!cancelled) setCompanies(rows);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [api]);
+
   const filtered = useMemo(() => {
-    return startups.filter((s) => {
+    if (!companies) return [];
+    return companies.filter((s) => {
       if (
         query &&
         !s.name.toLowerCase().includes(query.toLowerCase()) &&
-        !s.one_liner.toLowerCase().includes(query.toLowerCase()) &&
-        !s.sector.toLowerCase().includes(query.toLowerCase())
+        !(s.one_liner ?? "").toLowerCase().includes(query.toLowerCase()) &&
+        !(s.sector ?? "").toLowerCase().includes(query.toLowerCase())
       )
         return false;
-      if (pipelineFilter !== "all" && s.pipeline_stage !== pipelineFilter)
-        return false;
-      if (momentumFilter !== "all" && s.momentum !== momentumFilter)
-        return false;
+      if (pipelineFilter !== "all" && s.pipeline_stage !== pipelineFilter) return false;
+      if (momentumFilter !== "all" && s.momentum !== momentumFilter) return false;
       if (verdictFilter !== "all" && s.verdict !== verdictFilter) return false;
       if (stageFilter !== "all" && s.stage !== stageFilter) return false;
       return true;
     });
-  }, [query, pipelineFilter, momentumFilter, verdictFilter, stageFilter]);
+  }, [companies, query, pipelineFilter, momentumFilter, verdictFilter, stageFilter]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-ink-muted" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="card p-8 text-center">
+        <h3 className="text-lg font-semibold text-ink mb-2">Couldn&apos;t load startups</h3>
+        <p className="text-sm text-ink-muted">{error}</p>
+      </div>
+    );
+  }
+
+  if (!companies || companies.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="text-xs text-ink-muted">Portfolio</div>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Startups</h1>
+        </div>
+        <div className="card p-12 text-center">
+          <h3 className="text-lg font-semibold text-ink mb-2">No companies yet</h3>
+          <p className="text-sm text-ink-muted max-w-md mx-auto">
+            Run the extraction pipeline to populate startups extracted from your sources.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-end justify-between">
         <div>
           <div className="text-xs text-ink-muted">Portfolio</div>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">
             Startups
-            <span className="ml-3 text-ink-muted font-normal text-xl">
-              {filtered.length}
-            </span>
+            <span className="ml-3 text-ink-muted font-normal text-xl">{filtered.length}</span>
           </h1>
         </div>
 
@@ -80,9 +134,7 @@ export default function StartupsPage() {
               onClick={() => setView("grid")}
               className={cn(
                 "p-1.5 rounded-full transition",
-                view === "grid"
-                  ? "bg-ink text-white"
-                  : "text-ink-muted hover:text-ink",
+                view === "grid" ? "bg-ink text-white" : "text-ink-muted hover:text-ink"
               )}
               aria-label="Grid view"
             >
@@ -92,9 +144,7 @@ export default function StartupsPage() {
               onClick={() => setView("list")}
               className={cn(
                 "p-1.5 rounded-full transition",
-                view === "list"
-                  ? "bg-ink text-white"
-                  : "text-ink-muted hover:text-ink",
+                view === "list" ? "bg-ink text-white" : "text-ink-muted hover:text-ink"
               )}
               aria-label="List view"
             >
@@ -104,7 +154,6 @@ export default function StartupsPage() {
         </div>
       </div>
 
-      {/* Search + filters */}
       <div className="card p-4 space-y-4">
         <div className="flex items-center gap-2 bg-bg-subtle border border-line rounded-full px-4 py-2">
           <Search size={16} className="text-ink-faint" />
@@ -115,46 +164,20 @@ export default function StartupsPage() {
             className="bg-transparent flex-1 outline-none text-sm text-ink placeholder:text-ink-faint"
           />
           {query && (
-            <button
-              onClick={() => setQuery("")}
-              className="text-xs text-ink-muted hover:text-ink"
-            >
+            <button onClick={() => setQuery("")} className="text-xs text-ink-muted hover:text-ink">
               Clear
             </button>
           )}
         </div>
 
         <div className="space-y-2.5">
-          <FilterPills
-            label="Pipeline"
-            options={ALL_PIPELINE_STAGES}
-            active={pipelineFilter}
-            onChange={setPipelineFilter}
-          />
-          <FilterPills
-            label="Momentum"
-            options={ALL_MOMENTUMS}
-            active={momentumFilter}
-            onChange={setMomentumFilter}
-            capitalize
-          />
-          <FilterPills
-            label="Verdict"
-            options={ALL_VERDICTS}
-            active={verdictFilter}
-            onChange={setVerdictFilter}
-            capitalize
-          />
-          <FilterPills
-            label="Stage"
-            options={ALL_STAGES}
-            active={stageFilter}
-            onChange={setStageFilter}
-          />
+          <FilterPills label="Pipeline" options={ALL_PIPELINE_STAGES} active={pipelineFilter} onChange={setPipelineFilter} />
+          <FilterPills label="Momentum" options={ALL_MOMENTUMS} active={momentumFilter} onChange={setMomentumFilter} capitalize />
+          <FilterPills label="Verdict" options={ALL_VERDICTS} active={verdictFilter} onChange={setVerdictFilter} capitalize />
+          <FilterPills label="Stage" options={ALL_STAGES} active={stageFilter} onChange={setStageFilter} />
         </div>
       </div>
 
-      {/* Results */}
       {filtered.length === 0 ? (
         <div className="card p-12 text-center">
           <div className="text-ink-muted">No startups match your filters.</div>
@@ -194,37 +217,21 @@ export default function StartupsPage() {
             </thead>
             <tbody>
               {filtered.map((s) => (
-                <tr
-                  key={s.id}
-                  className="border-b border-line last:border-0 hover:bg-bg-subtle transition"
-                >
+                <tr key={s.id} className="border-b border-line last:border-0 hover:bg-bg-subtle transition">
                   <td className="px-5 py-3">
-                    <Link
-                      href={`/startups/${s.id}`}
-                      className="font-medium text-ink hover:underline"
-                    >
+                    <Link href={`/startups/${s.id}`} className="font-medium text-ink hover:underline">
                       {s.name}
                     </Link>
-                    <div className="text-xs text-ink-muted truncate max-w-[260px]">
-                      {s.one_liner}
-                    </div>
+                    <div className="text-xs text-ink-muted truncate max-w-[260px]">{s.one_liner}</div>
                   </td>
                   <td className="px-3 py-3 text-ink-muted">{s.sector}</td>
-                  <td className="px-3 py-3">
-                    <Tag>{s.stage}</Tag>
-                  </td>
-                  <td className="px-3 py-3">
-                    <PipelinePill stage={s.pipeline_stage} />
-                  </td>
-                  <td className="px-3 py-3">
-                    <MomentumBadge momentum={s.momentum} />
-                  </td>
-                  <td className="px-3 py-3">
-                    <VerdictBadge verdict={s.verdict} />
-                  </td>
+                  <td className="px-3 py-3">{s.stage ? <Tag>{s.stage}</Tag> : <span className="text-ink-faint text-xs">—</span>}</td>
+                  <td className="px-3 py-3"><PipelinePill stage={s.pipeline_stage} /></td>
+                  <td className="px-3 py-3"><MomentumBadge momentum={s.momentum} /></td>
+                  <td className="px-3 py-3"><VerdictBadge verdict={s.verdict} /></td>
                   <td className="px-3 py-3 text-ink-muted">{s.owner}</td>
                   <td className="px-5 py-3 text-right text-ink-faint text-xs">
-                    {relativeTime(s.last_touch_at)}
+                    {s.last_touch_at ? relativeTime(s.last_touch_at) : "—"}
                   </td>
                 </tr>
               ))}

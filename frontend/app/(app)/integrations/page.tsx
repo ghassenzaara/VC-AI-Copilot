@@ -46,8 +46,8 @@ const INTEGRATIONS: Integration[] = [
     initial: "G",
     defaultStatus: "connected",
     authMode: "api_key",
-    docsUrl: "https://docs.granola.ai/api-keys",
-    account: "yellow-fund-team",
+    docsUrl: "https://docs.granola.ai/introduction",
+    account: "vista-fund-team",
     lastSync: "Synced 4 min ago",
     scopes: ["transcripts.read", "calls.list", "attendees.read"],
     metrics: [
@@ -65,7 +65,7 @@ const INTEGRATIONS: Integration[] = [
     defaultStatus: "connected",
     authMode: "api_key",
     docsUrl: "https://support.affinity.co/hc/en-us/articles/360032633992",
-    account: "yellow.affinity.co",
+    account: "vista.affinity.co",
     lastSync: "Synced 22 min ago",
     scopes: ["lists.read", "lists.write", "persons.read"],
     metrics: [
@@ -83,7 +83,7 @@ const INTEGRATIONS: Integration[] = [
     defaultStatus: "needs_attention",
     authMode: "oauth",
     docsUrl: "https://api.slack.com/authentication/oauth-v2",
-    account: "yellow-vc.slack.com",
+    account: "vista-vc.slack.com",
     lastSync: "Token expired · last sync 2d ago",
     scopes: ["channels:history", "users:read", "files:read"],
     metrics: [
@@ -105,6 +105,53 @@ const INTEGRATIONS: Integration[] = [
     metrics: [],
   },
 ];
+
+// Build the real OAuth authorize URL for an integration. If a client ID is
+// configured via NEXT_PUBLIC_* env, build a proper authorize URL; otherwise
+// fall back to the vendor's sign-in page so the button still lands the user
+// somewhere real (for the hackathon demo).
+function buildOauthUrl(integration: Integration): string {
+  const redirect =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/integrations`
+      : "";
+
+  if (integration.id === "slack") {
+    const clientId = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID;
+    const scopes = "channels:history,users:read,files:read";
+    if (clientId) {
+      const params = new URLSearchParams({
+        client_id: clientId,
+        scope: scopes,
+        redirect_uri: redirect,
+      });
+      return `https://slack.com/oauth/v2/authorize?${params.toString()}`;
+    }
+    return "https://slack.com/signin";
+  }
+
+  if (integration.id === "gmail") {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const scopes = [
+      "https://www.googleapis.com/auth/gmail.readonly",
+      "https://www.googleapis.com/auth/gmail.metadata",
+    ].join(" ");
+    if (clientId) {
+      const params = new URLSearchParams({
+        client_id: clientId,
+        scope: scopes,
+        redirect_uri: redirect,
+        response_type: "code",
+        access_type: "offline",
+        prompt: "consent",
+      });
+      return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    }
+    return "https://accounts.google.com/signin";
+  }
+
+  return integration.docsUrl;
+}
 
 const STATUS_PALETTE: Record<
   Status,
@@ -158,8 +205,8 @@ export default function IntegrationsPage() {
             Integrations
           </h1>
           <p className="mt-1 text-sm text-ink-muted max-w-2xl">
-            Connect the tools that feed Yellow Copilot. All data is processed
-            in the same region your Yellow tenant is provisioned in.
+            Connect the tools that feed Vista Copilot. All data is processed
+            in the same region your Vista tenant is provisioned in.
           </p>
         </div>
 
@@ -478,11 +525,16 @@ function ConnectModal({
   function startOauth() {
     if (submitting) return;
     setSubmitting(true);
-    // Simulate the redirect + callback round-trip.
+    // Open the real vendor authorize page (or sign-in fallback) so the
+    // user actually lands on Slack/Google. The modal stays in a "waiting"
+    // state and self-completes after a short delay — backend wiring of
+    // the OAuth callback can replace this later.
+    const url = buildOauthUrl(integration);
+    window.open(url, "_blank", "noopener,noreferrer");
     window.setTimeout(() => {
       setSubmitting(false);
       onConnected();
-    }, 1100);
+    }, 1500);
   }
 
   return (
@@ -704,7 +756,7 @@ function OauthPanel({
 
       <div className="rounded-xl bg-bg-subtle border border-line p-4">
         <div className="text-xs font-medium text-ink mb-2">
-          Yellow will be able to
+          Vista will be able to
         </div>
         <ul className="space-y-1.5">
           {integration.scopes.map((s) => (

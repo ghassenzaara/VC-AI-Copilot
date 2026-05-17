@@ -37,14 +37,234 @@ def _validate_datetime(v: Optional[str]) -> Optional[str]:
     return v
 
 
+# ---------------------------------------------------------------------------
+# LLM drift-tolerance helpers — used by mode="before" field validators.
+# All helpers are no-ops for already-correct shapes; they only intervene when
+# the LLM emits something off-schema.
+# ---------------------------------------------------------------------------
+
+# Keys we accept as the "primary string" when the LLM wraps a string in a dict.
+_STR_KEYS = ("name", "text", "value", "label", "tag", "description", "title")
+
+
+def _coerce_str_list(v: Any) -> Any:
+    """Normalize a value into a List[str], tolerating object items.
+
+    Accepts:
+      - List[str]         -> kept (empties stripped)
+      - List[dict]        -> unwrapped via _STR_KEYS
+      - List[None]        -> dropped
+      - non-list          -> returned unchanged (Pydantic will reject)
+    """
+    if not isinstance(v, list):
+        return v
+    out: List[str] = []
+    for item in v:
+        if item is None:
+            continue
+        if isinstance(item, str):
+            stripped = item.strip()
+            if stripped:
+                out.append(stripped)
+        elif isinstance(item, dict):
+            for key in _STR_KEYS:
+                val = item.get(key)
+                if isinstance(val, str) and val.strip():
+                    out.append(val.strip())
+                    break
+        else:
+            out.append(str(item))
+    return out
+
+
+_CURRENCY_RE = re.compile(
+    r"""^\s*\$?\s*([\d,]+(?:\.\d+)?)\s*([kmbKMB]|million|billion|thousand)?\s*$""",
+    re.IGNORECASE,
+)
+_CURRENCY_MULT = {
+    "k": 1_000, "thousand": 1_000,
+    "m": 1_000_000, "million": 1_000_000,
+    "b": 1_000_000_000, "billion": 1_000_000_000,
+}
+
+
+def _coerce_currency(v: Any) -> Any:
+    """Accept '$5M', '5 million', '5,000,000', or a plain number — emit float."""
+    if v is None or isinstance(v, (int, float)):
+        return v
+    if not isinstance(v, str):
+        return v
+    s = v.strip()
+    if not s:
+        return None
+    m = _CURRENCY_RE.match(s)
+    if not m:
+        return None  # Don't fail — drop silently.
+    amount = float(m.group(1).replace(",", ""))
+    suffix = (m.group(2) or "").lower()
+    return amount * _CURRENCY_MULT.get(suffix, 1)
+
+
+_DURATION_RE = re.compile(r"^\s*(\d+(?:\.\d+)?)")
+
+
+def _coerce_int_loose(v: Any) -> Any:
+    """Accept '30 minutes' / '30' / 30 — emit int or None."""
+    if v is None or isinstance(v, int):
+        return v
+    if isinstance(v, float):
+        return int(v)
+    if not isinstance(v, str):
+        return v
+    m = _DURATION_RE.match(v)
+    return int(float(m.group(1))) if m else None
+
+
+# ---------------------------------------------------------------------------
+# Enum synonym maps — map free-form LLM values to canonical Literals so we
+# capture the LLM's *intent* instead of silently overwriting with a default.
+#
+# Each map is {canonical_value: [substring_aliases_lowercased]}.
+# `_resolve_enum` checks canonical (exact, case-insensitive) first, then
+# falls through to a substring match against the aliases. First hit wins —
+# alias lists are ordered most-specific → least-specific.
+# ---------------------------------------------------------------------------
+
+STAGE_SYNONYMS = {
+    "Pre-seed": ["pre-seed", "preseed", "pre seed", "angel round"],
+    "Seed": ["seed"],
+    "Series A": ["series a", "a-round", "a round"],
+    "Series B": ["series b", "b-round", "b round"],
+    "Series C+": ["series c", "series d", "series e", "series f", "series c+"],
+    "Growth": ["growth", "late-stage", "late stage", "pre-ipo", "pre ipo", "mature"],
+}
+
+MOMENTUM_SYNONYMS = {
+    "accelerating": ["accelerat", "ramping", "hot", "trending up", "picking up", "growing fast", "momentum building"],
+    "stable": ["stable", "steady", "consistent", "even", "flat", "ongoing", "tracking to plan"],
+    "stalling": ["stall", "slow", "cooling", "losing", "declining", "fading", "cooling off"],
+    "dead": ["dead", "killed", "rejected", "no longer", "cold", "lost", "passed on"],
+}
+
+PIPELINE_STAGE_SYNONYMS = {
+    "Tracking": ["tracking", "watching", "monitor", "initial track", "scouting"],
+    "First call": ["first call", "first meeting", "intro", "introduction", "kickoff", "kick off", "initial call"],
+    "Diligence": ["diligence", "due diligence", "dd", "deep dive", "evaluat", "review", "examining"],
+    "IC review": ["ic review", "investment committee", "partner meeting", "ic-review"],
+    "Decision": ["decision", "decided", "closed", "term sheet", "tsr", "verdict reached", "closed-won", "closed-lost"],
+}
+
+VERDICT_SYNONYMS = {
+    "tracking": ["track", "watch", "monitor", "consider", "interested", "early", "in pipeline", "follow"],
+    "diligence": ["diligence", "dd", "evaluat", "deep dive", "examining", "reviewing"],
+    "invested": ["invested", "closed", "closed-won", "fund", "wire sent", "term sheet sign", "signed", "in portfolio", "yes"],
+    "passed": ["pass", "declined", "rejected", "no fit", "no go", "dead", "closed-lost", "not a fit"],
+}
+
+ROLE_SYNONYMS = {
+    "Founder": ["founder", "co-founder", "cofounder", "founding"],
+    "CEO": ["ceo", "chief executive", "president"],
+    "CTO": ["cto", "chief technology", "chief technical", "head of engineering", "vp engineering"],
+    "COO": ["coo", "chief operating", "chief operations"],
+    "Investor": ["investor", "vc", "venture capital", "angel", "lp ", " lp", "limited partner", "gp ", " gp"],
+    "Operator": ["operator", "engineer", "designer", "product manager", "developer", "manager", "head of", "vp", "director", "lead", "marketing", "sales", "growth", "ops"],
+}
+
+SENTIMENT_SYNONYMS = {
+    "positive": ["very positive", "positive", "good", "great", "excellent", "amazing", "strong", "favorable", "enthusiast", "promising", "exciting", "optimist", "love", "impressed", "bullish"],
+    "negative": ["very negative", "negative", "bad", "poor", "weak", "concern", "skeptic", "doubt", "worry", "cautious", "unfavorable", "concerning", "bearish", "red flag"],
+    "neutral": ["neutral", "mixed", "balanced", "moderate", "ok", "fine", "average", "unclear"],
+}
+
+CHANNEL_SYNONYMS = {
+    "video": ["zoom", "google meet", "google-meet", "google_meet", "g-meet", "ms teams", "microsoft teams", "teams call", "webex", "video call", "videoconference", "videocall", "online", "virtual", "video", "facetime"],
+    "in_person": ["in person", "in-person", "onsite", "on-site", "office", "face-to-face", "face to face", "f2f", "irl"],
+    "phone": ["phone", "telephone", "voice call", "phone call", "voice-only"],
+    "email": ["email", "e-mail", "gmail thread", "outlook"],
+    "slack": ["slack", "discord", "chat thread"],
+}
+
+INTERACTION_TYPE_SYNONYMS = {
+    "intro_meeting": ["intro meeting", "intro", "introduction", "first call", "first meeting", "kickoff", "kick off", "initial call", "initial meeting"],
+    "deep_dive": ["deep dive", "deep-dive", "follow up", "follow-up", "technical review", "diligence call", "dd call", "second meeting"],
+    "demo": ["demo", "demonstration", "product walkthrough", "product walk-through", "showcase", "live demo"],
+    "reference_call": ["reference", "customer reference", "customer call", "ref call"],
+    "email": ["email", "e-mail", "mail thread"],
+    "slack_message": ["slack", "chat", "dm "],
+    "memo": ["memo", "writeup", "write-up", "internal doc", "investment memo"],
+    "ic_review": ["ic review", "investment committee", "partner meeting", "ic-review"],
+}
+
+METRIC_LABEL_SYNONYMS = {
+    "ARR": ["arr", "annual recurring revenue", "annual revenue"],
+    "MRR": ["mrr", "monthly recurring revenue", "monthly revenue"],
+    "customers": ["customer", "logo", "account", "client count", "paying user"],
+    "burn": ["burn", "cash burn", "monthly burn", "spend rate"],
+    "runway": ["runway", "months of cash", "cash runway"],
+    "growth_rate": ["growth", "mom", "yoy", "qoq", "growth rate", "monthly growth", "year over year"],
+    "margin": ["margin", "gross margin", "net margin", "profit margin"],
+    "headcount": ["headcount", "team size", "employee count", "fte", "staff size", "team of"],
+}
+
+SOURCE_TYPE_SYNONYMS = {
+    "granola": ["granola", "meeting note", "meeting transcript"],
+    "affinity": ["affinity", "crm"],
+    "slack": ["slack"],
+    "gmail": ["gmail", "email", "mail"],
+}
+
+
+def _resolve_enum(
+    value: Any,
+    synonyms: dict,
+    fallback: Any,
+) -> Any:
+    """Match `value` against a canonical enum with synonym fallback.
+
+    Returns the canonical key if matched; otherwise `fallback`. Pass-through
+    for None, empty string, and non-string types so Pydantic can run its
+    own checks on already-correct shapes.
+    """
+    if value is None:
+        return fallback
+    if not isinstance(value, str):
+        return value
+    s = value.strip()
+    if not s:
+        return fallback
+    # 1. Case-insensitive exact match against canonical keys.
+    for canonical in synonyms:
+        if s.lower() == canonical.lower():
+            return canonical
+    # 2. Substring match against aliases.
+    s_lower = s.lower()
+    for canonical, aliases in synonyms.items():
+        for alias in aliases:
+            if alias in s_lower:
+                return canonical
+    return fallback
+
+
 # ============================================
 # COMPANY BLOCK
 # ============================================
 
 class CompanySource(BaseModel):
     """Company data source tracking"""
-    types: List[Literal["granola", "affinity", "slack", "gmail"]]
+    types: List[Literal["granola", "affinity", "slack", "gmail"]] = Field(default_factory=list)
     external_id: Optional[str] = None
+
+    @field_validator("types", mode="before")
+    @classmethod
+    def _coerce_types(cls, v: Any) -> Any:
+        if not isinstance(v, list):
+            return v
+        out = []
+        for item in v:
+            resolved = _resolve_enum(item, SOURCE_TYPE_SYNONYMS, None)
+            if resolved and resolved not in out:
+                out.append(resolved)
+        return out
 
 
 class Company(BaseModel):
@@ -73,12 +293,17 @@ class Company(BaseModel):
     @field_validator("stage", mode="before")
     @classmethod
     def _coerce_stage(cls, v: Any) -> Any:
-        return v if v in {"Pre-seed", "Seed", "Series A", "Series B", "Series C+", "Growth"} else None
+        return _resolve_enum(v, STAGE_SYNONYMS, None)
 
     @field_validator("deal_momentum", mode="before")
     @classmethod
     def _coerce_momentum(cls, v: Any) -> Any:
-        return v if v in {"accelerating", "stable", "stalling", "dead"} else None
+        return _resolve_enum(v, MOMENTUM_SYNONYMS, None)
+
+    @field_validator("tags", "key_strengths", "key_concerns", mode="before")
+    @classmethod
+    def _coerce_string_lists(cls, v: Any) -> Any:
+        return _coerce_str_list(v)
 
 
 # ============================================
@@ -87,32 +312,27 @@ class Company(BaseModel):
 
 class DealStatus(BaseModel):
     """Current deal pipeline status"""
-    pipeline_stage: Literal["Tracking", "First call", "Diligence", "IC review", "Decision"]
-    last_touch_at: str  # ISO 8601 datetime
+    pipeline_stage: Literal["Tracking", "First call", "Diligence", "IC review", "Decision"] = "Tracking"
+    # Lenient: cross-block validator backfills from interactions if missing.
+    last_touch_at: Optional[str] = None
     next_step: Optional[str] = None
     owner: Optional[str] = None
 
     @field_validator("pipeline_stage", mode="before")
     @classmethod
     def _coerce_stage(cls, v: Any) -> Any:
-        return v if v in {"Tracking", "First call", "Diligence", "IC review", "Decision"} else "Tracking"
+        return _resolve_enum(v, PIPELINE_STAGE_SYNONYMS, "Tracking")
 
     @field_validator("last_touch_at")
     @classmethod
-    def _v_last_touch(cls, v: str) -> str:
-        # last_touch_at is required, so validate strictly.
-        validated = _validate_datetime(v)
-        if validated is None:
-            raise ValueError("last_touch_at is required")
-        return validated
+    def _v_last_touch(cls, v: Optional[str]) -> Optional[str]:
+        # Permissive: cross-block validator backfills from interactions.
+        return _validate_datetime(v)
 
 
 # ============================================
 # CONTACTS BLOCK
 # ============================================
-
-_VALID_ROLES = {"Founder", "CEO", "CTO", "COO", "Investor", "Operator", "Other"}
-
 
 class Contact(BaseModel):
     """External contact (founder, reference, etc.)"""
@@ -128,7 +348,7 @@ class Contact(BaseModel):
     @field_validator("role", mode="before")
     @classmethod
     def _coerce_role(cls, v: Any) -> Any:
-        return v if v in _VALID_ROLES else "Other"
+        return _resolve_enum(v, ROLE_SYNONYMS, "Other")
 
 
 # ============================================
@@ -137,12 +357,14 @@ class Contact(BaseModel):
 
 class InteractionSource(BaseModel):
     """Interaction source tracking"""
-    type: Literal["granola", "affinity", "slack", "gmail"]
+    type: Optional[Literal["granola", "affinity", "slack", "gmail"]] = None
     url: Optional[str] = None
     external_id: Optional[str] = None
 
-
-_VALID_METRIC_LABELS = {"ARR", "MRR", "customers", "burn", "runway", "growth_rate", "margin", "headcount", "other"}
+    @field_validator("type", mode="before")
+    @classmethod
+    def _coerce_source_type(cls, v: Any) -> Any:
+        return _resolve_enum(v, SOURCE_TYPE_SYNONYMS, None)
 
 
 class MetricMention(BaseModel):
@@ -154,7 +376,7 @@ class MetricMention(BaseModel):
     @field_validator("label", mode="before")
     @classmethod
     def _coerce_label(cls, v: Any) -> Any:
-        return v if v in _VALID_METRIC_LABELS else "other"
+        return _resolve_enum(v, METRIC_LABEL_SYNONYMS, "other")
 
     @field_validator("as_of")
     @classmethod
@@ -166,14 +388,6 @@ class Quote(BaseModel):
     """Direct quote from interaction"""
     speaker: str
     text: str
-
-
-_METRIC_LABEL_MAP = {
-    "mrr": "MRR", "arr": "ARR", "customer": "customers", "burn": "burn",
-    "runway": "runway", "growth": "growth_rate", "mom": "growth_rate",
-    "yoy": "growth_rate", "margin": "margin", "headcount": "headcount",
-    "employee": "headcount", "team size": "headcount",
-}
 
 
 class WhatHappened(BaseModel):
@@ -192,11 +406,7 @@ class WhatHappened(BaseModel):
         result = []
         for item in v:
             if isinstance(item, str):
-                lower = item.lower()
-                label = next(
-                    (lbl for key, lbl in _METRIC_LABEL_MAP.items() if key in lower),
-                    "other",
-                )
+                label = _resolve_enum(item, METRIC_LABEL_SYNONYMS, "other")
                 result.append({"label": label, "value": item, "as_of": None})
             else:
                 result.append(item)
@@ -212,11 +422,10 @@ class WhatHappened(BaseModel):
             for item in v
         ]
 
-
-_VALID_INTERACTION_TYPES = {
-    "intro_meeting", "deep_dive", "demo", "reference_call",
-    "email", "slack_message", "memo", "ic_review", "other",
-}
+    @field_validator("takeaways", "topics", mode="before")
+    @classmethod
+    def _coerce_takeaways_topics(cls, v: Any) -> Any:
+        return _coerce_str_list(v)
 
 
 class Interaction(BaseModel):
@@ -236,17 +445,17 @@ class Interaction(BaseModel):
     @field_validator("type", mode="before")
     @classmethod
     def _coerce_type(cls, v: Any) -> Any:
-        return v if v in _VALID_INTERACTION_TYPES else "other"
+        return _resolve_enum(v, INTERACTION_TYPE_SYNONYMS, "other")
 
     @field_validator("channel", mode="before")
     @classmethod
     def _coerce_channel(cls, v: Any) -> Any:
-        return v if v in {"video", "in_person", "phone", "email", "slack", "other"} else "other"
+        return _resolve_enum(v, CHANNEL_SYNONYMS, "other")
 
     @field_validator("sentiment", mode="before")
     @classmethod
     def _coerce_sentiment(cls, v: Any) -> Any:
-        return v if v in {"positive", "neutral", "negative"} else "neutral"
+        return _resolve_enum(v, SENTIMENT_SYNONYMS, "neutral")
 
     @field_validator("participants", mode="before")
     @classmethod
@@ -272,6 +481,11 @@ class Interaction(BaseModel):
             raise ValueError("occurred_at is required")
         return validated
 
+    @field_validator("duration_minutes", mode="before")
+    @classmethod
+    def _coerce_duration(cls, v: Any) -> Any:
+        return _coerce_int_loose(v)
+
 
 # ============================================
 # TEAM DEBATE BLOCK
@@ -283,6 +497,22 @@ class Argument(BaseModel):
     supporter: Optional[str] = None
     evidence: Optional[str] = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_alias_keys(cls, data: Any) -> Any:
+        """LLM sometimes emits {text|statement|description|claim: ...} instead
+        of {argument: ...}. Map any of those onto `argument`."""
+        if not isinstance(data, dict):
+            return data
+        if data.get("argument"):
+            return data
+        for alias in ("text", "statement", "description", "claim", "point", "rationale"):
+            val = data.get(alias)
+            if isinstance(val, str) and val.strip():
+                data = {**data, "argument": val.strip()}
+                break
+        return data
+
 
 class TeamDebate(BaseModel):
     """Internal team debate about the deal"""
@@ -290,6 +520,32 @@ class TeamDebate(BaseModel):
     for_arguments: List[Argument] = Field(default_factory=list)
     against_arguments: List[Argument] = Field(default_factory=list)
     open_questions: List[str] = Field(default_factory=list)
+
+    @field_validator("for_arguments", "against_arguments", mode="before")
+    @classmethod
+    def _coerce_argument_list(cls, v: Any) -> Any:
+        """LLMs sometimes emit `[\"Strong PMF\", ...]` instead of
+        `[{\"argument\": \"Strong PMF\"}, ...]`. Wrap bare strings into the
+        Argument shape so a minor schema-drift doesn't fail extraction.
+        """
+        if not isinstance(v, list):
+            return v
+        coerced: List[Any] = []
+        for item in v:
+            if isinstance(item, str):
+                stripped = item.strip()
+                if stripped:
+                    coerced.append({"argument": stripped})
+            elif item is None:
+                continue
+            else:
+                coerced.append(item)
+        return coerced
+
+    @field_validator("open_questions", mode="before")
+    @classmethod
+    def _coerce_open_questions(cls, v: Any) -> Any:
+        return _coerce_str_list(v)
 
 
 # ============================================
@@ -308,12 +564,17 @@ class DecisionRecord(BaseModel):
     @field_validator("verdict", mode="before")
     @classmethod
     def _coerce_verdict(cls, v: Any) -> Any:
-        return v if v in {"tracking", "diligence", "invested", "passed"} else "tracking"
+        return _resolve_enum(v, VERDICT_SYNONYMS, "tracking")
 
     @field_validator("decided_at")
     @classmethod
     def _v_decided_at(cls, v: Optional[str]) -> Optional[str]:
         return _validate_datetime(v)
+
+    @field_validator("conditions", mode="before")
+    @classmethod
+    def _coerce_conditions(cls, v: Any) -> Any:
+        return _coerce_str_list(v)
 
 
 # ============================================
@@ -325,6 +586,11 @@ class Funding(BaseModel):
     last_round_stage: Optional[str] = None
     last_round_amount_usd: Optional[float] = None
     total_raised_usd: Optional[float] = None
+
+    @field_validator("last_round_amount_usd", "total_raised_usd", mode="before")
+    @classmethod
+    def _coerce_amount(cls, v: Any) -> Any:
+        return _coerce_currency(v)
 
 
 class NewsItem(BaseModel):
@@ -403,6 +669,23 @@ class ExtractionMeta(BaseModel):
             raise ValueError("extracted_at is required")
         return validated
 
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _coerce_confidence(cls, v: Any) -> Any:
+        """LLM sometimes emits 0–100 instead of 0–1. Clamp to [0,1]."""
+        try:
+            f = float(v)
+        except (TypeError, ValueError):
+            return 0.5
+        if f > 1.0:
+            f = f / 100.0
+        return max(0.0, min(1.0, f))
+
+    @field_validator("warnings", mode="before")
+    @classmethod
+    def _coerce_warnings(cls, v: Any) -> Any:
+        return _coerce_str_list(v)
+
 
 # ============================================
 # COMPLETE EXTRACTION OUTPUT
@@ -428,6 +711,52 @@ class ExtractionOutput(BaseModel):
     company_now: CompanyNow = Field(default_factory=CompanyNow)
     extraction_meta: ExtractionMeta
 
+    @field_validator("contacts", mode="before")
+    @classmethod
+    def _coerce_contacts(cls, v: Any) -> Any:
+        """Tolerate bare-string contacts and contacts missing a name.
+
+        LLM occasionally emits `["Tomás Reyes", "Priya Nair"]` instead of
+        proper contact objects. Wrap them; default role to "Other".
+        Drop entries with no usable name (Pydantic would otherwise crash
+        on a required field).
+        """
+        if not isinstance(v, list):
+            return v
+        out: List[Any] = []
+        for item in v:
+            if item is None:
+                continue
+            if isinstance(item, str):
+                name = item.strip()
+                if name:
+                    out.append({"name": name, "role": "Other"})
+            elif isinstance(item, dict):
+                name = (item.get("name") or "").strip() if isinstance(item.get("name"), str) else ""
+                if not name:
+                    # Try common alternatives the LLM might use.
+                    for alt in ("full_name", "display_name", "person"):
+                        cand = item.get(alt)
+                        if isinstance(cand, str) and cand.strip():
+                            name = cand.strip()
+                            break
+                if name:
+                    merged = {**item, "name": name}
+                    merged.setdefault("role", "Other")
+                    out.append(merged)
+        return out
+
+    @field_validator("decision_record", mode="before")
+    @classmethod
+    def _coerce_decision_record(cls, v: Any) -> Any:
+        # If the LLM emits null for the whole block, default-construct it.
+        return v if v is not None else {"verdict": "tracking"}
+
+    @field_validator("deal_status", mode="before")
+    @classmethod
+    def _coerce_deal_status(cls, v: Any) -> Any:
+        return v if v is not None else {}
+
     @model_validator(mode="after")
     def _normalize_cross_block(self) -> "ExtractionOutput":
         """Cross-block normalization that the LLM frequently gets wrong.
@@ -435,18 +764,28 @@ class ExtractionOutput(BaseModel):
         - `deal_status.last_touch_at` must equal the max `occurred_at` across
           all interactions. The LLM sometimes picks the latest narratively
           important interaction instead of the chronologically latest one.
+          If the field was missing entirely, backfill it.
         - `deal_momentum` must align with `decision_record.verdict`: a closed
           deal cannot still be "accelerating".
         """
         if self.interactions:
             latest = max(i.occurred_at for i in self.interactions)
             if self.deal_status.last_touch_at != latest:
-                self.extraction_meta.warnings.append(
-                    f"deal_status.last_touch_at corrected from "
-                    f"{self.deal_status.last_touch_at} to {latest} "
-                    f"(max of interaction.occurred_at)"
-                )
+                if self.deal_status.last_touch_at:
+                    self.extraction_meta.warnings.append(
+                        f"deal_status.last_touch_at corrected from "
+                        f"{self.deal_status.last_touch_at} to {latest} "
+                        f"(max of interaction.occurred_at)"
+                    )
                 self.deal_status.last_touch_at = latest
+        elif not self.deal_status.last_touch_at:
+            # No interactions and no value — fall back to extraction time so
+            # downstream storage doesn't choke on a null required field.
+            self.deal_status.last_touch_at = self.extraction_meta.extracted_at
+            self.extraction_meta.warnings.append(
+                "deal_status.last_touch_at backfilled from extraction_meta.extracted_at "
+                "(no interactions present)"
+            )
 
         verdict = self.decision_record.verdict
         momentum = self.company.deal_momentum

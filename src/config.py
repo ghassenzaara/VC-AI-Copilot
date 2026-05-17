@@ -41,6 +41,13 @@ class Settings(BaseSettings):
     neo4j_uri: str
     neo4j_user: str = "neo4j"
     neo4j_password: str
+
+    # Clerk authentication. JWKS endpoint is what the backend verifies tokens
+    # against; issuer must match the `iss` claim Clerk puts on session tokens.
+    # Audience is optional — populate only if the Clerk JWT template sets `aud`.
+    clerk_jwks_url: Optional[str] = None
+    clerk_issuer: Optional[str] = None
+    clerk_audience: Optional[str] = None
     
     # Application Configuration
     log_level: str = "INFO"

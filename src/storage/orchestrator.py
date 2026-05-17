@@ -1,10 +1,4 @@
-"""Storage Orchestrator - Coordinates PostgreSQL and Neo4j writers
-
-Handles the complete storage workflow:
-1. Write to Neo4j (knowledge graph)
-2. Write to PostgreSQL (data warehouse)
-3. Handle errors and rollback if needed
-"""
+"""Storage Orchestrator - Coordinates per-user PostgreSQL and Neo4j writers."""
 
 import logging
 from typing import Dict, Any
@@ -20,126 +14,83 @@ logger = logging.getLogger(__name__)
 
 
 class StorageOrchestrator:
-    """Orchestrates storage of extraction output to both databases"""
-    
-    def __init__(
-        self,
-        postgres_client: PostgresClient,
-        neo4j_client: Neo4jClient
-    ):
-        """Initialize storage orchestrator
-        
-        Args:
-            postgres_client: Configured PostgresClient
-            neo4j_client: Configured Neo4jClient
-        """
+    """Orchestrates storage of an extraction to both databases, scoped to one user."""
+
+    def __init__(self, postgres_client: PostgresClient, neo4j_client: Neo4jClient):
         self.postgres_writer = PostgresWriter(postgres_client)
         self.neo4j_writer = Neo4jWriter(neo4j_client)
         self.logger = logging.getLogger(self.__class__.__name__)
-    
+
     def store_extraction(
         self,
-        extraction: ExtractionOutput
+        clerk_id: str,
+        extraction: ExtractionOutput,
     ) -> Dict[str, Any]:
-        """Store extraction output to both databases
-        
-        Workflow:
-        1. Write to Neo4j first (creates company_id)
-        2. Write to PostgreSQL using company_id
-        3. Return combined results
-        
-        Args:
-            extraction: ExtractionOutput from LLM
-            
-        Returns:
-            Dict with storage results from both databases
-        """
+        """Write extraction to Neo4j then PostgreSQL, rolling Neo4j back on PG failure."""
         company_name = extraction.company.name
-        self.logger.info(f"Storing extraction for {company_name}")
-        
+        self.logger.info("Storing extraction for %s (user=%s)", company_name, clerk_id)
+
         result = {
             'company_name': company_name,
             'neo4j': None,
             'postgres': None,
-            'success': False
+            'success': False,
         }
-        
-        # Step 1: Write to Neo4j (creates nodes and relationships)
-        self.logger.info(f"Writing {company_name} to Neo4j...")
-        neo4j_result = self.neo4j_writer.write_extraction(extraction)
+
+        self.logger.info("Writing %s to Neo4j...", company_name)
+        neo4j_result = self.neo4j_writer.write_extraction(clerk_id, extraction)
         result['neo4j'] = neo4j_result
         company_id = neo4j_result['company_id']
-        self.logger.info(f"Neo4j write complete: company_id={company_id}")
+        self.logger.info("Neo4j write complete: company_id=%s", company_id)
 
-        # Step 2: Write to PostgreSQL — rollback Neo4j on failure (BUG-044)
         try:
-            self.logger.info(f"Writing {company_name} to PostgreSQL...")
+            self.logger.info("Writing %s to PostgreSQL...", company_name)
             postgres_result = self.postgres_writer.write_extraction(
+                clerk_id=clerk_id,
                 extraction=extraction,
                 company_id=company_id,
             )
             result['postgres'] = postgres_result
             result['success'] = True
-            self.logger.info(f"Successfully stored {company_name} in both databases")
+            self.logger.info("Successfully stored %s in both databases", company_name)
             return result
         except Exception as pg_err:
             self.logger.error(
-                f"Postgres write failed for {company_name}: {pg_err}. "
-                f"Rolling back Neo4j (company_id={company_id})."
+                "Postgres write failed for %s: %s. Rolling back Neo4j (company_id=%s).",
+                company_name, pg_err, company_id,
             )
             try:
-                self.neo4j_writer.delete_company(company_id)
-                self.logger.info(f"Rolled back Neo4j subgraph for {company_id}")
+                self.neo4j_writer.delete_company(clerk_id, company_id)
+                self.logger.info("Rolled back Neo4j subgraph for %s", company_id)
             except Exception as rb_err:
                 self.logger.error(
-                    f"Neo4j rollback also failed (manual cleanup needed): {rb_err}"
+                    "Neo4j rollback also failed (manual cleanup needed): %s", rb_err
                 )
                 result['rollback_failed'] = True
                 result['orphan_company_id'] = company_id
             raise
-    
+
     def store_batch(
         self,
-        extractions: list[ExtractionOutput]
+        clerk_id: str,
+        extractions: list[ExtractionOutput],
     ) -> list[Dict[str, Any]]:
-        """Store multiple extractions
-        
-        Args:
-            extractions: List of ExtractionOutput objects
-            
-        Returns:
-            List of storage results
-        """
         results = []
-        
         for i, extraction in enumerate(extractions, 1):
             company_name = extraction.company.name
-            
             try:
-                result = self.store_extraction(extraction)
+                result = self.store_extraction(clerk_id, extraction)
                 results.append(result)
-                
-                self.logger.info(
-                    f"Progress: {i}/{len(extractions)} companies stored"
-                )
-                
+                self.logger.info("Progress: %d/%d companies stored", i, len(extractions))
             except Exception as e:
-                self.logger.error(
-                    f"Failed to store {company_name}: {e}. Continuing with next."
-                )
+                self.logger.error("Failed to store %s: %s. Continuing with next.", company_name, e)
                 results.append({
                     'company_name': company_name,
                     'success': False,
-                    'error': str(e)
+                    'error': str(e),
                 })
                 continue
-        
+
         successful = sum(1 for r in results if r.get('success'))
-        self.logger.info(
-            f"Batch storage complete: {successful}/{len(extractions)} successful"
-        )
-        
+        self.logger.info("Batch storage complete: %d/%d successful", successful, len(extractions))
         return results
-
-
-# Made with Bob

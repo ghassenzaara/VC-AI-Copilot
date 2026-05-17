@@ -1,6 +1,7 @@
 "use client";
 
-import { notFound, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -17,8 +18,9 @@ import {
   Building2,
   Users,
   Quote as QuoteIcon,
+  Loader2,
 } from "lucide-react";
-import { neuralEdge, startups } from "@/lib/mock-data";
+import { useApi } from "@/lib/use-api";
 import {
   MomentumBadge,
   PipelinePill,
@@ -30,6 +32,7 @@ import { formatDate, initials, relativeTime } from "@/lib/utils";
 import type {
   InteractionType,
   ExtractionOutput,
+  StartupSummary,
 } from "@/lib/types";
 
 const interactionIcon: Record<InteractionType, typeof Video> = {
@@ -46,12 +49,82 @@ const interactionIcon: Record<InteractionType, typeof Video> = {
 
 export default function StartupDetailPage() {
   const params = useParams<{ id: string }>();
-  const summary = startups.find((s) => s.id === params.id);
-  if (!summary) notFound();
+  const id = params?.id ?? "";
 
-  // Only NeuralEdge has full data in mock; others render a "thin" view.
-  const data: ExtractionOutput | null =
-    params.id === "neuraledge" ? neuralEdge : null;
+  const api = useApi();
+  const [data, setData] = useState<ExtractionOutput | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundFlag, setNotFoundFlag] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id || !api.isReady) return;
+    let cancelled = false;
+    setLoading(true);
+    api
+      .fetchCompanyFull(id)
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        if (msg.includes("404")) setNotFoundFlag(true);
+        else setError(msg);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id, api]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-ink-muted" />
+      </div>
+    );
+  }
+
+  if (notFoundFlag) {
+    return (
+      <div className="card p-12 text-center">
+        <h3 className="text-lg font-semibold text-ink mb-2">Company not found</h3>
+        <p className="text-sm text-ink-muted">
+          This company isn&apos;t in the database. Has the extraction pipeline run yet?
+        </p>
+        <Link href="/startups" className="btn-primary mt-4 inline-flex">
+          Back to startups
+        </Link>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="card p-8 text-center">
+        <h3 className="text-lg font-semibold text-ink mb-2">Couldn&apos;t load company</h3>
+        <p className="text-sm text-ink-muted">{error ?? "Unknown error"}</p>
+      </div>
+    );
+  }
+
+  // Build the lightweight summary the legacy rendering below uses.
+  const summary: StartupSummary = {
+    id: data.company.id ?? id,
+    name: data.company.name,
+    one_liner: data.company.one_liner,
+    sector: data.company.sector ?? "Uncategorized",
+    stage: data.company.stage,
+    pipeline_stage: data.deal_status.pipeline_stage,
+    momentum: data.company.deal_momentum ?? "stable",
+    verdict: data.decision_record.verdict,
+    last_touch_at: data.deal_status.last_touch_at,
+    owner: data.deal_status.owner ?? "Unassigned",
+    tags: data.company.tags ?? [],
+  };
 
   return (
     <div className="space-y-6">
@@ -108,7 +181,7 @@ export default function StartupDetailPage() {
             </div>
 
             <div className="mt-4 flex items-center gap-1.5 flex-wrap">
-              <Tag>{summary.stage}</Tag>
+              {summary.stage && <Tag>{summary.stage}</Tag>}
               <PipelinePill stage={summary.pipeline_stage} />
               {summary.tags.map((t) => (
                 <Tag key={t}>{t}</Tag>
@@ -121,7 +194,7 @@ export default function StartupDetailPage() {
             <div className="text-sm font-medium mt-0.5">{summary.owner}</div>
             <div className="mt-3 text-xs text-ink-muted">Last touch</div>
             <div className="text-sm mt-0.5">
-              {relativeTime(summary.last_touch_at)}
+              {summary.last_touch_at ? relativeTime(summary.last_touch_at) : "—"}
             </div>
           </div>
         </div>

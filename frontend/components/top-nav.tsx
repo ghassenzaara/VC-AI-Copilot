@@ -7,7 +7,8 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import { Bell, Search, ChevronDown, LogOut, UserCircle } from "lucide-react";
 import { Logo } from "./logo";
 import { cn } from "@/lib/utils";
-import { startups } from "@/lib/mock-data";
+import { useApi } from "@/lib/use-api";
+import type { StartupSummary } from "@/lib/types";
 import { PipelinePill } from "./badges";
 
 const TABS = [
@@ -49,19 +50,38 @@ export function TopNav() {
     setQuery("");
   }, [pathname]);
 
+  // Cache the companies list once; refresh on focus so post-extraction adds appear.
+  const api = useApi();
+  const [companies, setCompanies] = useState<StartupSummary[]>([]);
+  useEffect(() => {
+    if (!api.isReady) return;
+    let cancelled = false;
+    api
+      .fetchCompanies()
+      .then((rows) => {
+        if (!cancelled) setCompanies(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setCompanies([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [api]);
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return startups
+    return companies
       .filter(
         (s) =>
           s.name.toLowerCase().includes(q) ||
-          s.sector.toLowerCase().includes(q) ||
-          s.one_liner.toLowerCase().includes(q) ||
+          (s.sector ?? "").toLowerCase().includes(q) ||
+          (s.one_liner ?? "").toLowerCase().includes(q) ||
           s.tags.some((t) => t.toLowerCase().includes(q)),
       )
       .slice(0, 6);
-  }, [query]);
+  }, [query, companies]);
 
   useEffect(() => {
     setActiveIdx(0);
